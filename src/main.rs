@@ -1,8 +1,19 @@
-use axum::{handler::get, Router};
+// use std::fmt::Result;
+
+use axum::{
+    handler::{get, post},
+    http::StatusCode,
+    response::IntoResponse,
+    Json, Router,
+};
+
+use axum_debug::debug_handler;
 use mongodb::{
     bson::{self, doc, Document},
+    results::InsertOneResult,
     Client, Collection,
 };
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
 // Handler that immediately returns an empty `200 OK` response.
 async fn unit_handler() {}
@@ -13,7 +24,40 @@ async fn string_handler() -> String {
     "Hello, World!!!!!!".to_string()
 }
 
-// async fn create_task()->
+#[derive(Clone, Debug, Deserialize)]
+struct Task {
+    name: String,
+}
+
+#[derive(Clone, Debug)]
+pub struct DB {
+    pub client: Client,
+    pub tasks: Collection<Document>,
+}
+
+impl DB {
+    pub async fn init() -> Result<Self, Error> {
+        let client = Client::with_uri_str("mongodb://127.0.0.1:27017").await?;
+        let time_tracker_base_db = client.database("time-tracker-base");
+        let tasks: Collection<Document> = time_tracker_base_db.collection("tasks");
+
+        Ok(Self { client, tasks })
+    }
+
+    pub async fn create_task(self) {
+        self.tasks
+            .insert_one(
+                doc! {
+                    "name": "New Name from struct function"
+                },
+                None,
+            )
+            .await
+            .unwrap();
+    }
+
+    //     StatusCode::CREATED
+}
 
 #[derive(Error, Debug)]
 pub enum Error {
@@ -29,21 +73,17 @@ pub enum Error {
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    let mut client = Client::with_uri_str("mongodb://127.0.0.1:27017").await?;
-    let time_tracker_base_db = client.database("time-tracker-base");
+    let db = DB::init().await?;
 
-    let tasks: Collection<Document> = time_tracker_base_db.collection("tasks");
+    DB::create_task(db).await;
+    // let mut client = Client::with_uri_str("mongodb://127.0.0.1:27017").await?;
+    // let time_tracker_base_db = client.database("time-tracker-base");
 
-    tasks
-        .insert_one(
-            doc! {
-                "hello": "hello there"
-            },
-            None,
-        )
-        .await?;
+    // let tasks: Collection<Document> = time_tracker_base_db.collection("tasks");
+
     // build our application with a single route
     let app = Router::new().route("/", get(string_handler));
+    // .route("/create", post(create_task()));
 
     // run it with hyper on localhost:3000
     axum::Server::bind(&"0.0.0.0:3000".parse().unwrap())
