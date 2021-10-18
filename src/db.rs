@@ -72,7 +72,7 @@ impl DB {
         self.get_tasks_collection()
             .insert_one(
                 doc! {
-                    "name": "Another one 333333"
+                    "name": _entry.name.clone()
                 },
                 None,
             )
@@ -91,14 +91,8 @@ impl DB {
         };
 
         let doc = doc! {
-            "name": _entry.name.clone(),
+            "$set": { "name": _entry.name.clone() }
         };
-
-        println!("{}", query);
-        println!("{:?}", _entry);
-        println!("{:?}", doc);
-
-        // self.get_tasks_collection().find_one_and_update(filter, update, options)
 
         self.get_tasks_collection()
             .find_one_and_update(query, doc, None)
