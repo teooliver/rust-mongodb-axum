@@ -63,4 +63,12 @@ impl DB {
 
         Ok(())
     }
+    pub async fn delete_all_tasks(self) -> Result<()> {
+        self.get_tasks_collection()
+            .delete_many(doc! {}, None)
+            .await
+            .map_err(MongoQueryError)?;
+
+        Ok(())
+    }
 }

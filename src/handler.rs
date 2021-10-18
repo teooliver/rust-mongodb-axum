@@ -16,3 +16,7 @@ pub async fn create_task_handler(body: TaskRequest, db: DB) -> WebResult<impl Re
     db.create_task(&body).await.map_err(|e| reject::custom(e))?;
     Ok(StatusCode::CREATED)
 }
+pub async fn delete_all_tasks_handler(db: DB) -> WebResult<impl Reply> {
+    db.delete_all_tasks().await.map_err(|e| reject::custom(e))?;
+    Ok(StatusCode::OK)
+}
