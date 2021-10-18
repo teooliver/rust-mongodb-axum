@@ -63,6 +63,33 @@ impl DB {
 
         Ok(())
     }
+    pub async fn edit_task(&self, id: &str, _entry: &TaskRequest) -> Result<()> {
+        let oid = ObjectId::parse_str(id).map_err(|_| InvalidIDError(id.to_owned()))?;
+
+        println!("{}", oid);
+
+        let query = doc! {
+            "_id": oid,
+        };
+
+        let doc = doc! {
+            "name": _entry.name.clone(),
+        };
+
+        println!("{}", query);
+        println!("{:?}", _entry);
+
+        // self.get_tasks_collection().find_one_and_update(filter, update, options)
+
+        let x = self
+            .get_tasks_collection()
+            .update_one(query, doc, None)
+            .await
+            .map_err(MongoQueryError)?;
+
+        println!("{:?}", x);
+        Ok(())
+    }
     pub async fn delete_all_tasks(self) -> Result<()> {
         self.get_tasks_collection()
             .delete_many(doc! {}, None)
