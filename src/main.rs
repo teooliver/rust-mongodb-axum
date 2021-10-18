@@ -12,13 +12,9 @@ mod error;
 mod handler;
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct Book {
+pub struct Task {
     pub id: String,
     pub name: String,
-    pub author: String,
-    pub num_pages: usize,
-    pub added_at: DateTime<Utc>,
-    pub tags: Vec<String>,
 }
 
 #[tokio::main]
@@ -31,7 +27,11 @@ async fn main() -> Result<()> {
         .and(warp::post())
         .and(warp::body::json())
         .and(with_db(db.clone()))
-        .and_then(handler::create_task_handler);
+        .and_then(handler::create_task_handler)
+        .or(tasks
+            .and(warp::get())
+            .and(with_db(db.clone()))
+            .and_then(handler::fetch_all_tasks_handler));
 
     let routes = task_routes.recover(error::handle_rejection);
 

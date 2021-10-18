@@ -1,4 +1,4 @@
-use crate::{error::Error::*, handler::TaskRequest, Book, Result};
+use crate::{error::Error::*, handler::TaskRequest, Result, Task};
 use chrono::prelude::*;
 use futures::StreamExt;
 use mongodb::bson::{doc, document::Document, oid::ObjectId, Bson};
@@ -23,6 +23,31 @@ impl DB {
 
     fn get_tasks_collection(&self) -> Collection<Document> {
         self.client.database(DB_NAME).collection("tasks")
+    }
+
+    fn doc_to_task(&self, doc: &Document) -> Result<Task> {
+        let id = doc.get_object_id("_id")?;
+        let name = doc.get_str("name")?;
+
+        let book = Task {
+            id: id.to_hex(),
+            name: name.to_owned(),
+        };
+        Ok(book)
+    }
+
+    pub async fn get_all_tasks(&self) -> Result<Vec<Task>> {
+        let mut cursor = self
+            .get_tasks_collection()
+            .find(None, None)
+            .await
+            .map_err(MongoQueryError)?;
+
+        let mut result: Vec<Task> = Vec::new();
+        while let Some(doc) = cursor.next().await {
+            result.push(self.doc_to_task(&doc?)?);
+        }
+        Ok(result)
     }
 
     pub async fn create_task(self, _entry: &TaskRequest) -> Result<()> {
