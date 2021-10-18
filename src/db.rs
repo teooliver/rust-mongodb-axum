@@ -50,7 +50,25 @@ impl DB {
         Ok(result)
     }
 
-    pub async fn create_task(self, _entry: &TaskRequest) -> Result<()> {
+    pub async fn find_task(&self, id: &str) -> Result<Task> {
+        let oid = ObjectId::parse_str(id).map_err(|_| InvalidIDError(id.to_owned()))?;
+        let query = doc! {
+            "_id": oid,
+        };
+        let document = self
+            .get_tasks_collection()
+            .find_one(query, None)
+            .await
+            .map_err(MongoQueryError)?;
+
+        println!("{:?}", document);
+
+        let result = self.doc_to_task(&document.unwrap())?;
+
+        Ok(result)
+    }
+
+    pub async fn create_task(&self, _entry: &TaskRequest) -> Result<()> {
         self.get_tasks_collection()
             .insert_one(
                 doc! {
@@ -78,19 +96,18 @@ impl DB {
 
         println!("{}", query);
         println!("{:?}", _entry);
+        println!("{:?}", doc);
 
         // self.get_tasks_collection().find_one_and_update(filter, update, options)
 
-        let x = self
-            .get_tasks_collection()
-            .update_one(query, doc, None)
+        self.get_tasks_collection()
+            .find_one_and_update(query, doc, None)
             .await
             .map_err(MongoQueryError)?;
 
-        println!("{:?}", x);
         Ok(())
     }
-    pub async fn delete_all_tasks(self) -> Result<()> {
+    pub async fn delete_all_tasks(&self) -> Result<()> {
         self.get_tasks_collection()
             .delete_many(doc! {}, None)
             .await

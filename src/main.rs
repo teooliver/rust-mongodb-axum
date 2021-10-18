@@ -24,24 +24,25 @@ async fn main() -> Result<()> {
     let tasks = warp::path("tasks");
 
     let task_routes = tasks
-        .and(warp::post())
-        .and(warp::body::json())
+        .and(warp::get())
+        .and(warp::path::param())
         .and(with_db(db.clone()))
-        .and_then(handler::create_task_handler)
+        .and_then(handler::fetch_task_handler)
         .or(tasks
-            .and(warp::get())
+            .and(warp::post())
+            .and(warp::body::json())
             .and(with_db(db.clone()))
-            .and_then(handler::fetch_all_tasks_handler))
-        .or(tasks
-            .and(warp::delete())
-            .and(with_db(db.clone()))
-            .and_then(handler::delete_all_tasks_handler))
+            .and_then(handler::create_task_handler))
         .or(tasks
             .and(warp::put())
             .and(warp::path::param())
             .and(warp::body::json())
             .and(with_db(db.clone()))
-            .and_then(handler::edit_task_handler));
+            .and_then(handler::edit_task_handler))
+        .or(tasks
+            .and(warp::delete())
+            .and(with_db(db.clone()))
+            .and_then(handler::delete_all_tasks_handler));
 
     let routes = task_routes.recover(error::handle_rejection);
 
