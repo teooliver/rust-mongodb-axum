@@ -1,7 +1,6 @@
 use crate::{error::Error::*, handler::TaskRequest, Result, Task};
-use chrono::prelude::*;
 use futures::StreamExt;
-use mongodb::bson::{doc, document::Document, oid::ObjectId, Bson};
+use mongodb::bson::{doc, document::Document, oid::ObjectId};
 use mongodb::{options::ClientOptions, Client, Collection};
 
 const DB_NAME: &str = "time-tracker-base";

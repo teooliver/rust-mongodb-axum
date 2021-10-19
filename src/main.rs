@@ -1,4 +1,3 @@
-use chrono::prelude::*;
 use db::DB;
 use serde::{Deserialize, Serialize};
 use std::convert::Infallible;
@@ -10,6 +9,7 @@ type WebResult<T> = std::result::Result<T, Rejection>;
 mod db;
 mod error;
 mod handler;
+mod task;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Task {
@@ -24,10 +24,14 @@ async fn main() -> Result<()> {
     let tasks = warp::path("tasks");
 
     let task_routes = tasks
-        .and(warp::get())
-        .and(warp::path::param())
+        .and(warp::path("all"))
         .and(with_db(db.clone()))
-        .and_then(handler::fetch_task_handler)
+        .and_then(handler::fetch_all_tasks_handler)
+        .or(tasks
+            .and(warp::get())
+            .and(warp::path::param())
+            .and(with_db(db.clone()))
+            .and_then(handler::fetch_task_handler))
         .or(tasks
             .and(warp::post())
             .and(warp::body::json())
