@@ -1,7 +1,7 @@
-// use chrono::{DateTime, Utc};
-use mongodb::bson::oid::ObjectId;
+// use mongodb::bson::oid::ObjectId;
+use mongodb::bson::serde_helpers::bson_datetime_as_rfc3339_string;
 use mongodb::bson::DateTime;
-use serde::{Deserialize, Serialize};
+use serde::{self, Deserialize, Serialize};
 
 /// Define a type that models our data.
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -9,7 +9,9 @@ pub struct TaskSchema {
     pub _id: String, //ObjectId
     pub name: String,
     pub time_in_seconds: i64,
+    #[serde(with = "bson_datetime_as_rfc3339_string")]
     pub initial_time: DateTime,
+    #[serde(with = "bson_datetime_as_rfc3339_string")]
     pub end_time: DateTime,
     // project: MongoDbRef,
 }

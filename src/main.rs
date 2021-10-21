@@ -16,9 +16,6 @@ mod task;
 async fn main() -> Result<()> {
     let db = DB::init().await?;
 
-    // let testdt =
-    //     chrono::DateTime::parse_from_str("Wed Oct 20 2021 23:29:28", "%a %b %d %Y %H:%M:%S% %z");
-
     let chrono_dt: chrono::DateTime<Utc> = "2021-10-19T20:25:17.734Z".parse().unwrap();
     let initial_time: bson::DateTime = chrono_dt.into();
 
