@@ -1,11 +1,6 @@
+use crate::task::TaskRequest;
 use crate::{db::DB, WebResult};
-use serde::{Deserialize, Serialize};
 use warp::{http::StatusCode, reject, reply::json, Reply};
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct TaskRequest {
-    pub name: String,
-}
 
 pub async fn fetch_all_tasks_handler(db: DB) -> WebResult<impl Reply> {
     let tasks = db.get_all_tasks().await.map_err(|e| reject::custom(e))?;

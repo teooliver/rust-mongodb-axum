@@ -1,8 +1,9 @@
+use chrono;
+use chrono::Utc;
 use db::DB;
-use serde::{Deserialize, Serialize};
+use mongodb::bson;
 use std::convert::Infallible;
 use warp::{Filter, Rejection};
-
 type Result<T> = std::result::Result<T, error::Error>;
 type WebResult<T> = std::result::Result<T, Rejection>;
 
@@ -11,16 +12,19 @@ mod error;
 mod handler;
 mod task;
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct Task {
-    pub id: String,
-    pub name: String,
-}
-
 #[tokio::main]
 async fn main() -> Result<()> {
     let db = DB::init().await?;
 
+    // let testdt =
+    //     chrono::DateTime::parse_from_str("Wed Oct 20 2021 23:29:28", "%a %b %d %Y %H:%M:%S% %z");
+
+    let chrono_dt: chrono::DateTime<Utc> = "2021-10-19T20:25:17.734Z".parse().unwrap();
+    let initial_time: bson::DateTime = chrono_dt.into();
+
+    println!("{:?}", initial_time.to_string());
+
+    // TODO: add "api/v1" to all routes
     let tasks = warp::path("tasks");
 
     let task_routes = tasks

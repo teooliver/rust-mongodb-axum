@@ -1,6 +1,13 @@
-use crate::{error::Error::*, handler::TaskRequest, Result, Task};
+use std::str::FromStr;
+
+use crate::task::TaskSchema;
+use crate::task::{TaskRequest, TaskResponse};
+use crate::{error::Error::*, Result};
+use chrono::prelude::*;
+// use chrono::{DateTime, Utc};
 use futures::StreamExt;
-use mongodb::bson::{doc, document::Document, oid::ObjectId};
+use mongodb::bson;
+use mongodb::bson::{doc, document::Document, oid::ObjectId, DateTime};
 use mongodb::{options::ClientOptions, Client, Collection};
 
 const DB_NAME: &str = "time-tracker-base";
@@ -24,32 +31,54 @@ impl DB {
         self.client.database(DB_NAME).collection("tasks")
     }
 
-    fn doc_to_task(&self, doc: &Document) -> Result<Task> {
+    fn doc_to_task(&self, doc: &Document) -> Result<TaskResponse> {
         let id = doc.get_object_id("_id")?;
         let name = doc.get_str("name")?;
+        let time_in_seconds = doc.get_i64("time_in_seconds")?;
+        // let initial_time = doc.get_str("initial_time")?;
+        // let end_time = doc.get_str("end_time")?;
 
-        let book = Task {
-            id: id.to_hex(),
+        // let chrono_dt: chrono::DateTime<Utc> = _entry.initial_time.parse().unwrap();
+        let initial_time = doc.get_datetime("initial_time")?;
+        let end_time = doc.get_datetime("end_time")?;
+        println!("GOT HERE {:?}", initial_time);
+
+        // let initial_time_dt: chrono::DateTime<Utc> = doc.get_datetime("initial_time")?;
+        // let initial_time: bson::DateTime = initial_time_dt.into();
+        // println!("INITIAL ==> {:?}", initial_time);
+
+        // let end_time_dt: chrono::DateTime<Utc> = doc.get_datetime("end_time")?.parse().unwrap();
+        // let end_time: bson::DateTime = end_time_dt.into();
+
+        // println!("{:?}", initial_time);
+
+        let task = TaskResponse {
+            _id: id.to_hex(),
             name: name.to_owned(),
+            time_in_seconds: time_in_seconds.to_owned(),
+            initial_time: initial_time.to_string(),
+            end_time: end_time.to_string(),
         };
-        Ok(book)
+
+        println!("TASK {:?}", task);
+        Ok(task)
     }
 
-    pub async fn get_all_tasks(&self) -> Result<Vec<Task>> {
+    pub async fn get_all_tasks(&self) -> Result<Vec<TaskResponse>> {
         let mut cursor = self
             .get_tasks_collection()
             .find(None, None)
             .await
             .map_err(MongoQueryError)?;
 
-        let mut result: Vec<Task> = Vec::new();
+        let mut result: Vec<TaskResponse> = Vec::new();
         while let Some(doc) = cursor.next().await {
             result.push(self.doc_to_task(&doc?)?);
         }
         Ok(result)
     }
 
-    pub async fn find_task(&self, id: &str) -> Result<Task> {
+    pub async fn find_task(&self, id: &str) -> Result<TaskResponse> {
         let oid = ObjectId::parse_str(id).map_err(|_| InvalidIDError(id.to_owned()))?;
         let query = doc! {
             "_id": oid,
@@ -60,18 +89,27 @@ impl DB {
             .await
             .map_err(MongoQueryError)?;
 
-        println!("{:?}", document);
+        // println!("Document {:?}", document);
 
         let result = self.doc_to_task(&document.unwrap())?;
 
+        // println!("Result {:?}", result);
         Ok(result)
     }
 
     pub async fn create_task(&self, _entry: &TaskRequest) -> Result<()> {
+        let chrono_dt: chrono::DateTime<Utc> = _entry.initial_time.parse().unwrap();
+        let initial_time: bson::DateTime = chrono_dt.into();
+        let chrono_endtime: chrono::DateTime<Utc> = _entry.end_time.parse().unwrap();
+        let end_time: bson::DateTime = chrono_endtime.into();
+
         self.get_tasks_collection()
             .insert_one(
                 doc! {
-                    "name": _entry.name.clone()
+                "name": _entry.name.clone(),
+                "time_in_seconds": _entry.time_in_seconds.clone(),
+                "initial_time": initial_time.clone(),
+                "end_time": end_time.clone(),
                 },
                 None,
             )
