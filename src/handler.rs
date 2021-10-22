@@ -1,4 +1,4 @@
-use crate::task::TaskRequest;
+use crate::models::task::TaskRequest;
 use crate::{db::DB, WebResult};
 use warp::{http::StatusCode, reject, reply::json, Reply};
 

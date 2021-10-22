@@ -1,9 +1,8 @@
-use crate::task::{TaskRequest, TaskResponse};
+use crate::models::task::{TaskRequest, TaskResponse};
 use crate::{error::Error::*, Result};
 use chrono::prelude::*;
 use futures::StreamExt;
 use mongodb::bson;
-use mongodb::bson::document::ValueAccessError;
 use mongodb::bson::{doc, document::Document, oid::ObjectId};
 use mongodb::{options::ClientOptions, Client, Collection};
 
