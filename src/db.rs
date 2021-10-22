@@ -3,6 +3,7 @@ use crate::{error::Error::*, Result};
 use chrono::prelude::*;
 use futures::StreamExt;
 use mongodb::bson;
+use mongodb::bson::document::ValueAccessError;
 use mongodb::bson::{doc, document::Document, oid::ObjectId};
 use mongodb::{options::ClientOptions, Client, Collection};
 
@@ -33,6 +34,12 @@ impl DB {
         let time_in_seconds = doc.get_i64("time_in_seconds")?;
         let initial_time = doc.get_datetime("initial_time")?;
         let end_time = doc.get_datetime("end_time")?;
+        let project = doc.get_str("project").ok();
+
+        let match_project: Option<String> = match project {
+            Some(project) => Some(project.to_owned()),
+            None => None,
+        };
 
         let task = TaskResponse {
             _id: id.to_hex(),
@@ -40,6 +47,7 @@ impl DB {
             time_in_seconds: time_in_seconds.to_owned(),
             initial_time: initial_time.to_chrono().to_rfc3339(),
             end_time: end_time.to_chrono().to_rfc3339(),
+            project: match_project,
         };
 
         Ok(task)
@@ -80,6 +88,7 @@ impl DB {
         let initial_time: bson::DateTime = chrono_dt.into();
         let chrono_endtime: chrono::DateTime<Utc> = _entry.end_time.parse().unwrap();
         let end_time: bson::DateTime = chrono_endtime.into();
+        let project: Option<String> = _entry.project.clone();
 
         self.get_tasks_collection()
             .insert_one(
@@ -88,6 +97,7 @@ impl DB {
                 "time_in_seconds": _entry.time_in_seconds.clone(),
                 "initial_time": initial_time.clone(),
                 "end_time": end_time.clone(),
+                "project": project
                 },
                 None,
             )
@@ -112,6 +122,7 @@ impl DB {
             .await
             .map_err(MongoQueryError)?;
 
+        todo!("Edit Task");
         Ok(())
     }
     pub async fn delete_all_tasks(&self) -> Result<()> {

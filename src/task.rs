@@ -1,4 +1,4 @@
-// use mongodb::bson::oid::ObjectId;
+use mongodb::bson::oid::ObjectId;
 use mongodb::bson::serde_helpers::bson_datetime_as_rfc3339_string;
 use mongodb::bson::DateTime;
 use serde::{self, Deserialize, Serialize};
@@ -13,7 +13,8 @@ pub struct TaskSchema {
     pub initial_time: DateTime,
     #[serde(with = "bson_datetime_as_rfc3339_string")]
     pub end_time: DateTime,
-    // project: MongoDbRef,
+    project: Option<ObjectId>,
+    // project: Option<ObjectId>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -22,7 +23,7 @@ pub struct TaskRequest {
     pub time_in_seconds: i64,
     pub initial_time: String,
     pub end_time: String,
-    // project: MongoDbRef,
+    pub project: Option<String>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -32,5 +33,5 @@ pub struct TaskResponse {
     pub time_in_seconds: i64,
     pub initial_time: String,
     pub end_time: String,
-    // project: MongoDbRef,
+    pub project: Option<String>,
 }
