@@ -1,6 +1,8 @@
 use db::DB;
 use std::convert::Infallible;
 use warp::{Filter, Rejection};
+
+use crate::models::project;
 type Result<T> = std::result::Result<T, error::Error>;
 type WebResult<T> = std::result::Result<T, Rejection>;
 
@@ -8,6 +10,7 @@ mod db;
 mod error;
 mod handler;
 mod models;
+mod project_db_impl;
 // mod models{pub mod task};
 // use crate::models;
 
@@ -43,7 +46,17 @@ async fn main() -> Result<()> {
             .and(with_db(db.clone()))
             .and_then(handler::delete_all_tasks_handler));
 
-    let routes = task_routes.recover(error::handle_rejection);
+    let projects = warp::path("projects");
+
+    let projects_routes = projects
+        .and(warp::post())
+        .and(warp::body::json())
+        .and(with_db(db.clone()))
+        .and_then(handler::create_project_handler);
+
+    let routes = task_routes
+        .or(projects_routes)
+        .recover(error::handle_rejection);
 
     println!("Started on port 8080");
     warp::serve(routes).run(([0, 0, 0, 0], 8080)).await;

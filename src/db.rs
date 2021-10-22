@@ -6,7 +6,7 @@ use mongodb::bson;
 use mongodb::bson::{doc, document::Document, oid::ObjectId};
 use mongodb::{options::ClientOptions, Client, Collection};
 
-const DB_NAME: &str = "time-tracker-base";
+pub const DB_NAME: &str = "time-tracker-base";
 
 #[derive(Clone, Debug)]
 pub struct DB {
@@ -26,6 +26,10 @@ impl DB {
     fn get_tasks_collection(&self) -> Collection<Document> {
         self.client.database(DB_NAME).collection("tasks")
     }
+
+    // fn get_projects_collection(&self) -> Collection<Document> {
+    //     self.client.database(DB_NAME).collection("projects")
+    // }
 
     fn doc_to_task(&self, doc: &Document) -> Result<TaskResponse> {
         let id = doc.get_object_id("_id")?;
@@ -51,6 +55,24 @@ impl DB {
 
         Ok(task)
     }
+
+    // pub fn doc_to_project(&self, doc: &Document) -> Result<ProjectSchema> {
+    //     let id = doc.get_object_id("_id")?;
+    //     let name = doc.get_str("name")?;
+    //     let color = doc.get_str("color")?;
+    //     let estimate = doc.get_str("estimate")?;
+    //     let status = doc.get_str("status")?;
+
+    //     let project = ProjectSchema {
+    //         _id: id.to_hex(),
+    //         name: name.to_owned(),
+    //         color: color.to_owned(),
+    //         estimate: estimate.to_owned(),
+    //         status: status.to_owned(),
+    //     };
+
+    //     Ok(project)
+    // }
 
     pub async fn get_all_tasks(&self) -> Result<Vec<TaskResponse>> {
         let mut cursor = self
@@ -105,6 +127,7 @@ impl DB {
 
         Ok(())
     }
+
     pub async fn edit_task(&self, id: &str, _entry: &TaskRequest) -> Result<()> {
         let oid = ObjectId::parse_str(id).map_err(|_| InvalidIDError(id.to_owned()))?;
 

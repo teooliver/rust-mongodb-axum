@@ -1,3 +1,4 @@
+use crate::models::project::ProjectRequest;
 use crate::models::task::TaskRequest;
 use crate::{db::DB, WebResult};
 use warp::{http::StatusCode, reject, reply::json, Reply};
@@ -27,4 +28,12 @@ pub async fn edit_task_handler(id: String, body: TaskRequest, db: DB) -> WebResu
         .await
         .map_err(|e| reject::custom(e))?;
     Ok(StatusCode::OK)
+}
+
+// Projects
+pub async fn create_project_handler(body: ProjectRequest, db: DB) -> WebResult<impl Reply> {
+    db.create_project(&body)
+        .await
+        .map_err(|e| reject::custom(e))?;
+    Ok(StatusCode::CREATED)
 }

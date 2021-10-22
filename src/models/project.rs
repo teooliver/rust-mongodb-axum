@@ -10,3 +10,11 @@ pub struct ProjectSchema {
     pub estimate: String,
     pub status: String,
 }
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ProjectRequest {
+    pub name: String,
+    pub color: String,
+    pub estimate: String,
+    pub status: String,
+}
