@@ -79,6 +79,7 @@ impl DB {
 
         // let result: TaskResponse;
         if document == None {
+            // Throw Error: Couldnt Find a Task with this ID
             println!("{}", "Found a NONE value here");
             let result = TaskResponse {
                 _id: "6173254801b2abc18f3a8f8a".to_string(),

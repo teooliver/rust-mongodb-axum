@@ -2,6 +2,7 @@ use crate::db::DB;
 use crate::db::DB_NAME;
 use crate::models::project::{ProjectRequest, ProjectSchema};
 use crate::{error::Error::*, Result};
+use mongodb::bson::oid::ObjectId;
 use mongodb::bson::{doc, Document};
 use mongodb::Collection;
 
@@ -18,7 +19,7 @@ impl DB {
         let status = doc.get_str("status")?;
 
         let project = ProjectSchema {
-            _id: id.to_hex(),
+            _id: id.to_owned(),
             name: name.to_owned(),
             color: color.to_owned(),
             estimate: estimate.to_owned(),
@@ -26,6 +27,36 @@ impl DB {
         };
 
         Ok(project)
+    }
+
+    pub async fn find_project(&self, id: &str) -> Result<ProjectSchema> {
+        let oid = ObjectId::parse_str(id).map_err(|_| InvalidIDError(id.to_owned()))?;
+        let query = doc! {
+            "_id": oid,
+        };
+        let document = self
+            .get_projects_collection()
+            .find_one(query, None)
+            .await
+            .map_err(MongoQueryError)?;
+
+        // let result: TaskResponse;
+        if document == None {
+            // Throw Error: Couldnt Find a Project with this ID (intead of this object)
+            println!("{}", "Found a NONE value here");
+            let result = ProjectSchema {
+                _id: ObjectId::parse_str(id).map_err(|_| InvalidIDError(id.to_owned()))?,
+                name: "project_name".to_string(),
+                color: "project_color".to_string(),
+                estimate: "project_estimate".to_string(),
+                status: "project_status".to_string(),
+            };
+            return Ok(result);
+        }
+
+        let result = self.doc_to_project(&document.unwrap())?;
+
+        Ok(result)
     }
 
     pub async fn create_project(&self, _entry: &ProjectRequest) -> Result<()> {
