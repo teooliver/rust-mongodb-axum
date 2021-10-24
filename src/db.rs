@@ -27,10 +27,6 @@ impl DB {
         self.client.database(DB_NAME).collection("tasks")
     }
 
-    // fn get_projects_collection(&self) -> Collection<Document> {
-    //     self.client.database(DB_NAME).collection("projects")
-    // }
-
     fn doc_to_task(&self, doc: &Document) -> Result<TaskResponse> {
         let id = doc.get_object_id("_id")?;
         let name = doc.get_str("name")?;
@@ -56,24 +52,6 @@ impl DB {
         Ok(task)
     }
 
-    // pub fn doc_to_project(&self, doc: &Document) -> Result<ProjectSchema> {
-    //     let id = doc.get_object_id("_id")?;
-    //     let name = doc.get_str("name")?;
-    //     let color = doc.get_str("color")?;
-    //     let estimate = doc.get_str("estimate")?;
-    //     let status = doc.get_str("status")?;
-
-    //     let project = ProjectSchema {
-    //         _id: id.to_hex(),
-    //         name: name.to_owned(),
-    //         color: color.to_owned(),
-    //         estimate: estimate.to_owned(),
-    //         status: status.to_owned(),
-    //     };
-
-    //     Ok(project)
-    // }
-
     pub async fn get_all_tasks(&self) -> Result<Vec<TaskResponse>> {
         let mut cursor = self
             .get_tasks_collection()
@@ -98,6 +76,20 @@ impl DB {
             .find_one(query, None)
             .await
             .map_err(MongoQueryError)?;
+
+        // let result: TaskResponse;
+        if document == None {
+            println!("{}", "Found a NONE value here");
+            let result = TaskResponse {
+                _id: "6173254801b2abc18f3a8f8a".to_string(),
+                name: "Couldnt find a task with this ID".to_string(),
+                time_in_seconds: 0,
+                initial_time: "2021-10-21T22:10:31.990+00:00".to_string(),
+                end_time: "2021-10-21T22:11:59.135+00:00".to_string(),
+                project: Some("lfsjdlfksjdlf".to_string()),
+            };
+            return Ok(result);
+        }
 
         let result = self.doc_to_task(&document.unwrap())?;
 
@@ -131,12 +123,24 @@ impl DB {
     pub async fn edit_task(&self, id: &str, _entry: &TaskRequest) -> Result<()> {
         let oid = ObjectId::parse_str(id).map_err(|_| InvalidIDError(id.to_owned()))?;
 
+        let chrono_dt: chrono::DateTime<Utc> = _entry.initial_time.parse().unwrap();
+        let initial_time: bson::DateTime = chrono_dt.into();
+        let chrono_endtime: chrono::DateTime<Utc> = _entry.end_time.parse().unwrap();
+        let end_time: bson::DateTime = chrono_endtime.into();
+        let project: Option<String> = _entry.project.clone();
+
         let query = doc! {
             "_id": oid,
         };
 
         let doc = doc! {
-            "$set": { "name": _entry.name.clone() }
+            "$set": {
+                "name": _entry.name.clone(),
+                "time_in_seconds": _entry.time_in_seconds.clone(),
+                "initial_time": initial_time.clone(),
+                "end_time": end_time.clone(),
+                "project": project
+                }
         };
 
         self.get_tasks_collection()
@@ -144,7 +148,6 @@ impl DB {
             .await
             .map_err(MongoQueryError)?;
 
-        todo!("Edit Task");
         Ok(())
     }
     pub async fn delete_all_tasks(&self) -> Result<()> {

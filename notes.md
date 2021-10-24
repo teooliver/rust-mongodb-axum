@@ -1,3 +1,5 @@
+# Tips:
+
 ### Calculate Duration between Datetimes
 
 ```rs
@@ -12,3 +14,9 @@ println!("DURATION {:?}", duration);
     let initial_time: bson::DateTime = chrono_dt.into();
     println!("{:?}", initial_time.to_string());
 ```
+
+# TODO:
+
+- Create type for json errors.
+- Return json error messages from handlers.
+- Better Error handling when object not found in DB and etc (Instead of just returning `500 Internal Server Error`)
