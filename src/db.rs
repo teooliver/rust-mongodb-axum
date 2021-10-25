@@ -77,19 +77,9 @@ impl DB {
             .await
             .map_err(MongoQueryError)?;
 
-        // let result: TaskResponse;
         if document == None {
-            // Throw Error: Couldnt Find a Task with this ID
-            println!("{}", "Found a NONE value here");
-            let result = TaskResponse {
-                _id: "6173254801b2abc18f3a8f8a".to_string(),
-                name: "Couldnt find a task with this ID".to_string(),
-                time_in_seconds: 0,
-                initial_time: "2021-10-21T22:10:31.990+00:00".to_string(),
-                end_time: "2021-10-21T22:11:59.135+00:00".to_string(),
-                project: Some("lfsjdlfksjdlf".to_string()),
-            };
-            return Ok(result);
+            // return error::Err(warp::reject::not_found());
+            return Err(ObjNotFound);
         }
 
         let result = self.doc_to_task(&document.unwrap())?;

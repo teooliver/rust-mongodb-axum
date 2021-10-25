@@ -42,16 +42,8 @@ impl DB {
 
         // let result: TaskResponse;
         if document == None {
-            // Throw Error: Couldnt Find a Project with this ID (intead of this object)
-            println!("{}", "Found a NONE value here");
-            let result = ProjectSchema {
-                _id: ObjectId::parse_str(id).map_err(|_| InvalidIDError(id.to_owned()))?,
-                name: "project_name".to_string(),
-                color: "project_color".to_string(),
-                estimate: "project_estimate".to_string(),
-                status: "project_status".to_string(),
-            };
-            return Ok(result);
+            // return error::Err(warp::reject::not_found());
+            return Err(ObjNotFound);
         }
 
         let result = self.doc_to_project(&document.unwrap())?;

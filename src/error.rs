@@ -14,6 +14,8 @@ pub enum Error {
     MongoDataError(#[from] bson::document::ValueAccessError),
     #[error("invalid id used: {0}")]
     InvalidIDError(String),
+    #[error("Object Not Found")]
+    ObjNotFound,
 }
 
 #[derive(Serialize)]
@@ -35,6 +37,10 @@ pub async fn handle_rejection(err: Rejection) -> std::result::Result<Box<dyn Rep
         message = "Invalid Body";
     } else if let Some(e) = err.find::<Error>() {
         match e {
+            Error::ObjNotFound => {
+                code = StatusCode::NOT_FOUND;
+                message = "Not Found";
+            }
             _ => {
                 eprintln!("unhandled application error: {:?}", err);
                 code = StatusCode::INTERNAL_SERVER_ERROR;

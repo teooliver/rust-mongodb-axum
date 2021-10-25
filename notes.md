@@ -1,5 +1,13 @@
 # Tips:
 
+### Hot Reload:
+
+Runst cargo watch in terminal:
+
+```rs
+cargo watch -x run
+```
+
 ### Calculate Duration between Datetimes
 
 ```rs
