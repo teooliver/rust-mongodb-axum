@@ -149,4 +149,17 @@ impl DB {
 
         Ok(())
     }
+
+    pub async fn delete_task(&self, id: &str) -> Result<()> {
+        let oid = ObjectId::parse_str(id).map_err(|_| InvalidIDError(id.to_owned()))?;
+        let query = doc! {
+            "_id": oid,
+        };
+        self.get_tasks_collection()
+            .delete_one(query, None)
+            .await
+            .map_err(MongoQueryError)?;
+
+        Ok(())
+    }
 }

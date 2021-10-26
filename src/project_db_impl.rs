@@ -19,7 +19,7 @@ impl DB {
         let status = doc.get_str("status")?;
 
         let project = ProjectSchema {
-            _id: id.to_owned(),
+            _id: id.to_hex(),
             name: name.to_owned(),
             color: color.to_owned(),
             estimate: estimate.to_owned(),
@@ -40,7 +40,6 @@ impl DB {
             .await
             .map_err(MongoQueryError)?;
 
-        // let result: TaskResponse;
         if document == None {
             // return error::Err(warp::reject::not_found());
             return Err(ObjNotFound);
@@ -62,6 +61,15 @@ impl DB {
                 },
                 None,
             )
+            .await
+            .map_err(MongoQueryError)?;
+
+        Ok(())
+    }
+
+    pub async fn delete_all_projects(&self) -> Result<()> {
+        self.get_projects_collection()
+            .delete_many(doc! {}, None)
             .await
             .map_err(MongoQueryError)?;
 
