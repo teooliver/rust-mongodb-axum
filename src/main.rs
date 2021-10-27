@@ -65,7 +65,12 @@ async fn main() -> Result<()> {
             .and(warp::delete())
             .and(warp::path("dangerously-delete-all-projects"))
             .and(with_db(db.clone()))
-            .and_then(handler::delete_all_projects_handler));
+            .and_then(handler::delete_all_projects_handler))
+        .or(projects
+            .and(warp::delete())
+            .and(warp::path::param())
+            .and(with_db(db.clone()))
+            .and_then(handler::delete_project_handler));
 
     let routes = task_routes
         .or(projects_routes)

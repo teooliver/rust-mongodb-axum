@@ -46,6 +46,13 @@ pub async fn create_project_handler(body: ProjectRequest, db: DB) -> WebResult<i
     Ok(StatusCode::CREATED)
 }
 
+pub async fn delete_project_handler(id: String, db: DB) -> WebResult<impl Reply> {
+    db.delete_project(&id)
+        .await
+        .map_err(|e| reject::custom(e))?;
+    Ok(StatusCode::OK)
+}
+
 pub async fn delete_all_projects_handler(db: DB) -> WebResult<impl Reply> {
     db.delete_all_projects()
         .await

@@ -67,6 +67,19 @@ impl DB {
         Ok(())
     }
 
+    pub async fn delete_project(&self, id: &str) -> Result<()> {
+        let oid = ObjectId::parse_str(id).map_err(|_| InvalidIDError(id.to_owned()))?;
+        let query = doc! {
+            "_id": oid,
+        };
+        self.get_projects_collection()
+            .delete_one(query, None)
+            .await
+            .map_err(MongoQueryError)?;
+
+        Ok(())
+    }
+
     pub async fn delete_all_projects(&self) -> Result<()> {
         self.get_projects_collection()
             .delete_many(doc! {}, None)
