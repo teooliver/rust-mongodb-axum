@@ -1,5 +1,7 @@
 # Rust MongoDb Warp API Example
 
+---
+
 ## Overview
 
 This is an example project that uses Rust, Warp and MongoDb to build an api.
@@ -14,11 +16,11 @@ Once the app is started, conntect to the port `8080` => `http://localhost:8080/`
 
 #### Routes
 
-Obs:There's also a Postman file in the root of the project with a collection of all routes documented.
+_Obs: There's also a Postman file in the root of the project with a collection of all routes documented._
+
+##### ==== Tasks ====
 
 ```
-// ==== Tasks ====
-
 /tasks
     - POST -> create new task
 
@@ -32,9 +34,11 @@ Obs:There's also a Postman file in the root of the project with a collection of 
 
 tasks/dangerously-delete-all-tasks
     - DELETE -> delete all tasks
+```
 
-// ==== Projecs ====
+##### ==== Projecs ====
 
+```
 /projects
     - POST -> create new project
 
