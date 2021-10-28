@@ -1,7 +1,5 @@
 # Rust MongoDb Warp API Example
 
-proj name: rust-mongodb-warp
-
 ## Overview
 
 This is an example project that uses Rust, Warp and MongoDb to build an api.
