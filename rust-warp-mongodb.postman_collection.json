@@ -1,0 +1,266 @@
+{
+	"info": {
+		"_postman_id": "f2564c37-c231-40ac-97ad-e4a2686af59c",
+		"name": "rust-time-track-base",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create Task",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{  \n    \"name\": \"hello40\",\n    \"time_in_seconds\": 0,\n    \"initial_time\": \"2021-10-21T22:10:31.990Z\",\n    \"end_time\": \"2021-10-21T22:11:59.135Z\",\n    \"project\": \"lfsjdlfksjdlf\"\n    \n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/tasks/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"tasks",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Tasks",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:8080/tasks/all",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"tasks",
+						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Task",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/tasks/6173442a96c7547057c9ee99",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"tasks",
+						"6173442a96c7547057c9ee99"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Project",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/projects/6173442a96c7547057c9ee99",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"projects",
+						"6173442a96c7547057c9ee99"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Edit Task",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{       \"name\": \"hello\",\n        \"time_in_seconds\": 0,\n        \"initial_time\": \"2021-10-19T20:25:17.734Z\",\n        \"end_time\": \"2021-10-19T20:25:34.284Z\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/tasks/616dfa30cad6fe2a27360f4d",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"tasks",
+						"616dfa30cad6fe2a27360f4d"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Task",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{       \"name\": \"hello\",\n        \"time_in_seconds\": 0,\n        \"initial_time\": \"2021-10-19T20:25:17.734Z\",\n        \"end_time\": \"2021-10-19T20:25:34.284Z\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/tasks/61787c1a6c6757ef90211362",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"tasks",
+						"61787c1a6c6757ef90211362"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Project",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{       \"name\": \"hello\",\n        \"time_in_seconds\": 0,\n        \"initial_time\": \"2021-10-19T20:25:17.734Z\",\n        \"end_time\": \"2021-10-19T20:25:34.284Z\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/tasks/61787c1a6c6757ef90211362",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"tasks",
+						"61787c1a6c6757ef90211362"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete All Projects",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/tasks/dangerously-delete-all-tasks",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"tasks",
+						"dangerously-delete-all-tasks"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete All Tasks Copy",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/tasks/dangerously-delete-all-tasks",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"tasks",
+						"dangerously-delete-all-tasks"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Project",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{  \n   \"name\":\"project_name\",\n    \"color\": \"project_color\",\n    \"estimate\": \"project_estimate\",\n    \"status\": \"project_status\"\n    \n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/projects/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"projects",
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
