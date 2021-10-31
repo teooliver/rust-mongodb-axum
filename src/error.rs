@@ -2,7 +2,7 @@ use mongodb::bson;
 use serde::Serialize;
 use std::convert::Infallible;
 use thiserror::Error;
-use warp::{http::StatusCode, reply, Rejection, Reply};
+use warp::{cors::CorsForbidden, http::StatusCode, reply, Rejection, Reply};
 
 #[derive(Error, Debug)]
 pub enum Error {
@@ -47,6 +47,13 @@ pub async fn handle_rejection(err: Rejection) -> std::result::Result<Box<dyn Rep
                 message = "Internal Server Error";
             }
         }
+    } else if let Some(_) = err.find::<CorsForbidden>() {
+        code = StatusCode::FORBIDDEN;
+        message = "CORS request forbidden: header not allowed";
+        // Ok(warp::reply::with_status(
+        //     error.to_string(),
+        //     StatusCode::FORBIDDEN,
+        // ))
     } else if let Some(_) = err.find::<warp::reject::MethodNotAllowed>() {
         code = StatusCode::METHOD_NOT_ALLOWED;
         message = "Method Not Allowed";

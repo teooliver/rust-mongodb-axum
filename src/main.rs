@@ -1,6 +1,6 @@
 use db::DB;
 use std::convert::Infallible;
-use warp::{Filter, Rejection};
+use warp::{http::Method, Filter, Rejection};
 
 type Result<T> = std::result::Result<T, error::Error>;
 type WebResult<T> = std::result::Result<T, Rejection>;
@@ -14,6 +14,10 @@ mod project_db_impl;
 #[tokio::main]
 async fn main() -> Result<()> {
     let db = DB::init().await?;
+
+    let cors = warp::cors().allow_any_origin();
+    // .allow_header("content-type")
+    // .allow_methods(&[Method::PUT, Method::DELETE]);
 
     // TODO: add "api/v1" to all routes
     let tasks = warp::path("tasks");
@@ -74,6 +78,7 @@ async fn main() -> Result<()> {
 
     let routes = task_routes
         .or(projects_routes)
+        .with(cors)
         .recover(error::handle_rejection);
 
     println!("Started on port 8080");

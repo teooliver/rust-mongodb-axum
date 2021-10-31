@@ -27,4 +27,4 @@ println!("DURATION {:?}", duration);
 
 - Create type for json errors.
 - Return json error messages from handlers.
-- Better Error handling when object not found in DB and etc (Instead of just returning `500 Internal Server Error`)
+- Better Error handling
