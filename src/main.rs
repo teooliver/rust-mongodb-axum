@@ -1,17 +1,16 @@
-// use db::DB;
+mod controllers;
+mod db;
+mod error;
+mod models;
+
 use std::convert::Infallible;
 use warp::{http::Method, Filter, Rejection};
-
-use crate::db::db::DB;
 
 type Result<T> = std::result::Result<T, error::Error>;
 type WebResult<T> = std::result::Result<T, Rejection>;
 
-mod db;
-mod error;
-mod handler;
-mod models;
-// mod project_db_impl;
+use crate::controllers::{projects, tasks};
+use crate::db::db::DB;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -27,33 +26,33 @@ async fn main() -> Result<()> {
     let task_routes = tasks
         .and(warp::path("all"))
         .and(with_db(db.clone()))
-        .and_then(handler::fetch_all_tasks_handler)
+        .and_then(tasks::fetch_all_tasks_handler)
         .or(tasks
             .and(warp::get())
             .and(warp::path::param())
             .and(with_db(db.clone()))
-            .and_then(handler::fetch_task_handler))
+            .and_then(tasks::fetch_task_handler))
         .or(tasks
             .and(warp::post())
             .and(warp::body::json())
             .and(with_db(db.clone()))
-            .and_then(handler::create_task_handler))
+            .and_then(tasks::create_task_handler))
         .or(tasks
             .and(warp::put())
             .and(warp::path::param())
             .and(warp::body::json())
             .and(with_db(db.clone()))
-            .and_then(handler::edit_task_handler))
+            .and_then(tasks::edit_task_handler))
         .or(tasks
             .and(warp::delete())
             .and(warp::path("dangerously-delete-all-tasks"))
             .and(with_db(db.clone()))
-            .and_then(handler::delete_all_tasks_handler))
+            .and_then(tasks::delete_all_tasks_handler))
         .or(tasks
             .and(warp::delete())
             .and(warp::path::param())
             .and(with_db(db.clone()))
-            .and_then(handler::delete_task_handler));
+            .and_then(tasks::delete_task_handler));
 
     let projects = warp::path("projects");
 
@@ -61,22 +60,22 @@ async fn main() -> Result<()> {
         .and(warp::post())
         .and(warp::body::json())
         .and(with_db(db.clone()))
-        .and_then(handler::create_project_handler)
+        .and_then(projects::create_project_handler)
         .or(projects
             .and(warp::get())
             .and(warp::path::param())
             .and(with_db(db.clone()))
-            .and_then(handler::fetch_project_handler))
+            .and_then(projects::fetch_project_handler))
         .or(projects
             .and(warp::delete())
             .and(warp::path("dangerously-delete-all-projects"))
             .and(with_db(db.clone()))
-            .and_then(handler::delete_all_projects_handler))
+            .and_then(projects::delete_all_projects_handler))
         .or(projects
             .and(warp::delete())
             .and(warp::path::param())
             .and(with_db(db.clone()))
-            .and_then(handler::delete_project_handler));
+            .and_then(projects::delete_project_handler));
 
     let routes = task_routes
         .or(projects_routes)
