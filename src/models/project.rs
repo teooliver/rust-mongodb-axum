@@ -1,8 +1,6 @@
 use mongodb::bson::oid::ObjectId;
-// use mongodb::bson::oid::ObjectId;
 use serde::{self, Deserialize, Serialize};
 
-/// Define a type that models our data.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ProjectSchema {
     pub _id: String, //ObjectId
@@ -10,6 +8,8 @@ pub struct ProjectSchema {
     pub color: String,
     pub estimate: String,
     pub status: String,
+    //   createdAt: Date;
+    //   updatedAt: Date;
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -18,4 +18,6 @@ pub struct ProjectRequest {
     pub color: String,
     pub estimate: String,
     pub status: String,
+    //   createdAt: Date;
+    //   updatedAt: Date;
 }

@@ -28,3 +28,4 @@ println!("DURATION {:?}", duration);
 - Create type for json errors.
 - Return json error messages from handlers.
 - Better Error handling
+- Extract Error handling functions to its on `lib`

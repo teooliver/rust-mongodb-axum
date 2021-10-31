@@ -3,7 +3,6 @@ use mongodb::bson::serde_helpers::bson_datetime_as_rfc3339_string;
 use mongodb::bson::DateTime;
 use serde::{self, Deserialize, Serialize};
 
-/// Define a type that models our data.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct TaskSchema {
     pub _id: String, //ObjectId
@@ -14,6 +13,8 @@ pub struct TaskSchema {
     #[serde(with = "bson_datetime_as_rfc3339_string")]
     pub end_time: DateTime,
     project: Option<ObjectId>,
+    //   createdAt: Date;
+    //   updatedAt: Date;
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -33,4 +34,6 @@ pub struct TaskResponse {
     pub initial_time: String,
     pub end_time: String,
     pub project: Option<String>,
+    //   createdAt: Date;
+    //   updatedAt: Date;
 }
