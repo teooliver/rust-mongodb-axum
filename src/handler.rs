@@ -1,6 +1,6 @@
-use crate::models::project::ProjectRequest;
 use crate::models::task::TaskRequest;
-use crate::{db::DB, WebResult};
+use crate::WebResult;
+use crate::{db::db::DB, models::project::ProjectRequest};
 use warp::{http::StatusCode, reject, reply::json, Reply};
 
 pub async fn fetch_all_tasks_handler(db: DB) -> WebResult<impl Reply> {

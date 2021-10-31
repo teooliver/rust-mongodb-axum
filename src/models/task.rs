@@ -14,7 +14,6 @@ pub struct TaskSchema {
     #[serde(with = "bson_datetime_as_rfc3339_string")]
     pub end_time: DateTime,
     project: Option<ObjectId>,
-    // project: Option<ObjectId>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]

@@ -1,6 +1,8 @@
-use db::DB;
+// use db::DB;
 use std::convert::Infallible;
 use warp::{http::Method, Filter, Rejection};
+
+use crate::db::db::DB;
 
 type Result<T> = std::result::Result<T, error::Error>;
 type WebResult<T> = std::result::Result<T, Rejection>;
@@ -9,7 +11,7 @@ mod db;
 mod error;
 mod handler;
 mod models;
-mod project_db_impl;
+// mod project_db_impl;
 
 #[tokio::main]
 async fn main() -> Result<()> {
