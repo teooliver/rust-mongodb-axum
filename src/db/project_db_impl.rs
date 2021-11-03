@@ -52,6 +52,46 @@ impl DB {
         Ok(result)
     }
 
+    // pub fn get_projects_grouped_by_client(&self) {
+
+    //     let pipeline = doc! {
+    //         [
+    //   {
+    //     $lookup: {
+    //       from: 'clients',
+    //       localField: 'client',
+    //       foreignField: '_id',
+    //       as: 'clientName',
+    //     },
+    //   },
+    //   {
+    //     $sort: {
+    //       updatedAt: -1,
+    //     },
+    //   },
+    //   {
+    //     $project: {
+    //       _id: '$_id',
+    //       name: '$name',
+    //       color: '$color',
+    //       clientName: { $arrayElemAt: ['$clientName.name', 0] },
+    //       estimate: '$estimate',
+    //       status: '$status',
+    //       subprojects: '$subprojects',
+    //     },
+    //   },
+    //   {
+    //     $group: {
+    //       _id: '$clientName',
+    //       projects: { $push: '$$ROOT' },
+    //     },
+    //   },
+    // ]
+    //     };
+
+    //     self.get_projects_collection().aggregate(pipeline, None);
+    // };
+
     pub async fn create_project(&self, _entry: &ProjectRequest) -> Result<()> {
         self.get_projects_collection()
             .insert_one(

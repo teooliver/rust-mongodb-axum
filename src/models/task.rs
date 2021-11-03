@@ -12,9 +12,11 @@ pub struct TaskSchema {
     pub initial_time: DateTime,
     #[serde(with = "bson_datetime_as_rfc3339_string")]
     pub end_time: DateTime,
-    project: Option<ObjectId>,
-    //   createdAt: Date;
-    //   updatedAt: Date;
+    pub project: Option<ObjectId>,
+    #[serde(with = "bson_datetime_as_rfc3339_string")]
+    pub created_at: DateTime,
+    #[serde(with = "bson_datetime_as_rfc3339_string")]
+    pub updated_at: DateTime,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -34,6 +36,6 @@ pub struct TaskResponse {
     pub initial_time: String,
     pub end_time: String,
     pub project: Option<String>,
-    //   createdAt: Date;
-    //   updatedAt: Date;
+    pub created_at: String,
+    pub updated_at: String,
 }

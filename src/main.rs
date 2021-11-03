@@ -9,12 +9,15 @@ use warp::{http::Method, Filter, Rejection};
 type Result<T> = std::result::Result<T, error::Error>;
 type WebResult<T> = std::result::Result<T, Rejection>;
 
-use crate::controllers::{projects, tasks};
+use crate::controllers::{projects, seed, tasks};
 use crate::db::db::DB;
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    seed::generate_clients_data(10);
+
     let db = DB::init().await?;
+    seed::seed_clients(&db).await;
 
     let cors = warp::cors().allow_any_origin();
     // .allow_header("content-type")

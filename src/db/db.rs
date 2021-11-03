@@ -34,6 +34,8 @@ impl DB {
         let initial_time = doc.get_datetime("initial_time")?;
         let end_time = doc.get_datetime("end_time")?;
         let project = doc.get_str("project").ok();
+        let created_at = doc.get_datetime("created_at")?;
+        let updated_at = doc.get_datetime("updated_at")?;
 
         let match_project: Option<String> = match project {
             Some(project) => Some(project.to_owned()),
@@ -47,6 +49,8 @@ impl DB {
             initial_time: initial_time.to_chrono().to_rfc3339(),
             end_time: end_time.to_chrono().to_rfc3339(),
             project: match_project,
+            created_at: created_at.to_chrono().to_rfc3339(),
+            updated_at: updated_at.to_chrono().to_rfc3339(),
         };
 
         Ok(task)
@@ -101,7 +105,9 @@ impl DB {
                 "time_in_seconds": _entry.time_in_seconds.clone(),
                 "initial_time": initial_time.clone(),
                 "end_time": end_time.clone(),
-                "project": project
+                "project": project,
+                "created_at": chrono::Utc::now().clone(),
+                "updated_at": chrono::Utc::now().clone(),
                 },
                 None,
             )
@@ -130,7 +136,8 @@ impl DB {
                 "time_in_seconds": _entry.time_in_seconds.clone(),
                 "initial_time": initial_time.clone(),
                 "end_time": end_time.clone(),
-                "project": project
+                "project": project,
+                "updated_at": chrono::Utc::now().clone(),
                 }
         };
 

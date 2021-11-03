@@ -1,11 +1,6 @@
-
-use crate::models::task::TaskRequest;
 use crate::WebResult;
 use crate::{db::db::DB, models::project::ProjectRequest};
 use warp::{http::StatusCode, reject, reply::json, Reply};
-
-
-
 
 pub async fn fetch_project_handler(id: String, db: DB) -> WebResult<impl Reply> {
     let project = db.find_project(&id).await.map_err(|e| reject::custom(e))?;
