@@ -130,4 +130,12 @@ impl DB {
 
         Ok(())
     }
+
+    pub async fn create_many_projects(&self, _entry: Vec<mongodb::bson::Document>) -> Result<()> {
+        self.get_projects_collection()
+            .insert_many(_entry, None)
+            .await
+            .map_err(MongoQueryError)?;
+        Ok(())
+    }
 }

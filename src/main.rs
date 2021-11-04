@@ -18,6 +18,7 @@ async fn main() -> Result<()> {
 
     let db = DB::init().await?;
     seed::seed_clients(&db).await;
+    db.get_all_clients_ids().await;
 
     let cors = warp::cors().allow_any_origin();
     // .allow_header("content-type")

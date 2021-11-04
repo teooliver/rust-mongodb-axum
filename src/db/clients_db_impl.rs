@@ -1,6 +1,7 @@
 use crate::error;
 use crate::error::Error::*;
 use crate::models::client::{ClientRequest, ClientResponse};
+use bson::serde_helpers::serialize_object_id_as_hex_string;
 use bson::Document;
 use mongodb::bson::oid::ObjectId;
 use mongodb::bson::{self, doc, Bson};
@@ -65,21 +66,6 @@ impl DB {
         &self,
         _entry: Vec<mongodb::bson::Document>,
     ) -> Result<(), error::Error> {
-        // let serielized_clients = _entry.serialize(serializer);
-        // Serialize it to a JSON string.
-        // println!("{}", "HELLO THERE");
-        // let j = serde_json::to_string_pretty(&_entry).unwrap();
-        // println!("{}", j);
-
-        // // let doc: bson::Document = j.to_document();
-        // let bson_doc = bson::to_vec(&j).unwrap();
-
-        // let document = bson_doc;
-
-        // let value: Map<String, Value> = serde_json::from_str(&j).unwrap();
-        // let document = Document::try_from(value).unwrap();
-        // println!("DCOUMENT {:?}", &document);
-
         self.get_clients_collection()
             .insert_many(_entry, None)
             .await
@@ -105,6 +91,32 @@ impl DB {
             .delete_many(doc! {}, None)
             .await
             .map_err(MongoQueryError)?;
+
+        Ok(())
+    }
+
+    pub async fn get_all_clients_ids(&self) -> Result<(), error::Error> {
+        let clients_ids = self
+            .get_clients_collection()
+            .distinct("_id", None, None)
+            .await
+            .map_err(MongoQueryError)?;
+
+        // The `.distinct` method returns a Vec<Bson, Global>
+        // I would like to convert clients_ids from Vec<Bson, Global> to Vec<String>.
+        // I tried everything I could but can't figure this one out.
+
+        // Should I iterate over each item in clients_ids and convert them individualy to String?
+        // In that cause how can I do that?
+
+        for item in clients_ids {
+            // serialize_object_id_as_hex_string(item);
+            // let x: std::result::Result<String, mongodb::bson::de::Error> = bson::from_bson(item);
+
+            println!("Bson Item {:?}", item); // prints ObjectId("61842402bcfb83e1b27b6d85")
+        }
+
+        // TODO: Need to convert Vec<Bson, Global> to Vec<&str> or Vec<String>
 
         Ok(())
     }
