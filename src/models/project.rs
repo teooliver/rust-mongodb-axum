@@ -14,7 +14,7 @@ pub struct ProjectSchema {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ProjectRequest {
-    pub client: String,
+    pub client: ObjectId,
     pub name: String,
     pub color: String,
     pub estimate: String,

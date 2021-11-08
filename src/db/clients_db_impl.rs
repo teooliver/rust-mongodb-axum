@@ -102,7 +102,7 @@ impl DB {
         Ok(())
     }
 
-    pub async fn get_all_clients_ids(&self) -> Result<Vec<Bson>, error::Error> {
+    pub async fn get_all_clients_ids(&self) -> Result<Vec<String>, error::Error> {
         let clients_ids = self
             .get_clients_collection()
             .distinct("_id", None, None)
@@ -116,7 +116,7 @@ impl DB {
         // Should I iterate over each item in clients_ids and convert them individualy to String?
         // In that cause how can I do that?
         // println!("GOT HERE");
-        // let string_vec: Vec<String>;
+        let mut string_vec: Vec<String> = vec![];
         for item in &clients_ids {
             // let x = bson::from_bson<String>(item);
             // let x = item;
@@ -128,10 +128,13 @@ impl DB {
             // TODO
             // convert item from Bson to String
             // push to string_vec.
-            println!("Bson Item {:?}", item); // prints ObjectId("61842402bcfb83e1b27b6d85")
+            string_vec.push(item.as_object_id().unwrap().to_hex());
+            // println!("Bson Item {:?}", item.as_object_id().unwrap().to_hex()); // prints ObjectId("61842402bcfb83e1b27b6d85")
         }
 
-        Ok(clients_ids)
+        println!("{:?}", string_vec);
+
+        Ok(string_vec)
         // Ok(string_vec)
     }
 }

@@ -16,9 +16,9 @@ use crate::db::db::DB;
 #[tokio::main]
 async fn main() -> Result<()> {
     let db = DB::init().await?;
-    // seed::generate_clients_data(10);
-    // seed::seed_clients(&db).await;
-    // seed::seed_projects(&db).await;
+    seed::generate_clients_data(10);
+    seed::seed_clients(&db).await;
+    seed::seed_projects(&db).await;
 
     // db.get_all_clients_ids().await?;
 
@@ -88,7 +88,12 @@ async fn main() -> Result<()> {
         .and(warp::get())
         .and(warp::path::param())
         .and(with_db(db.clone()))
-        .and_then(clients::fetch_client_handler);
+        .and_then(clients::fetch_client_handler)
+        .or(clients
+            .and(warp::post())
+            .and(warp::body::json())
+            .and(with_db(db.clone()))
+            .and_then(clients::create_client_handler));
 
     let routes = task_routes
         .or(projects_routes)

@@ -1,16 +1,16 @@
-use fake::{self, Fake};
-use mongodb::{
-    bson::{doc, Bson},
-    Client,
-};
-use rand::Rng;
-use warp::{http::StatusCode, Reply};
-
+use crate::error::Error::InvalidIDError;
 use crate::{
     db::db::DB,
     models::{client::ClientRequest, project::ProjectRequest},
     WebResult,
 };
+use fake::{self, Fake};
+use mongodb::{
+    bson::{doc, oid::ObjectId, Bson},
+    Client,
+};
+use rand::Rng;
+use warp::{http::StatusCode, Reply};
 
 pub const PROJECT_COLORS: [&str; 10] = [
     "#61e294ff",
@@ -47,12 +47,16 @@ pub fn generate_clients_data(amount: u8) -> Vec<mongodb::bson::Document> {
     clients
 }
 
-pub fn create_project(clients_ids: Vec<Bson>) -> ProjectRequest {
+pub fn create_project(clients_ids: Vec<String>) -> ProjectRequest {
     let rng_color_index = rand::thread_rng().gen_range(0..(PROJECT_COLORS.len() - 1));
     let rng_client_index = rand::thread_rng().gen_range(0..(clients_ids.len() - 1));
 
+    let client_id = ObjectId::parse_str(clients_ids[rng_client_index].to_string())
+        .map_err(|_| InvalidIDError(clients_ids[rng_client_index].to_owned()))
+        .unwrap();
+
     let new_project = ProjectRequest {
-        client: clients_ids[rng_client_index].to_string(),
+        client: client_id,
         name: fake::faker::company::en::CompanyName().fake(),
         color: PROJECT_COLORS[rng_color_index].to_string(),
         estimate: "".to_string(),
@@ -62,7 +66,10 @@ pub fn create_project(clients_ids: Vec<Bson>) -> ProjectRequest {
     new_project
 }
 
-pub fn generate_projects_data(amount: u8, clients_ids: Vec<Bson>) -> Vec<mongodb::bson::Document> {
+pub fn generate_projects_data(
+    amount: u8,
+    clients_ids: Vec<String>,
+) -> Vec<mongodb::bson::Document> {
     let mut projects: Vec<mongodb::bson::Document> = vec![];
     let project = create_project(clients_ids);
 
@@ -99,17 +106,3 @@ pub async fn seed_projects(db: &DB) -> WebResult<impl Reply> {
 
     Ok(StatusCode::OK)
 }
-
-// pub async fn seed_projects(db: &DB) -> WebResult<impl Reply> {
-//     db.delete_all_clients().await?;
-//     db.delete_all_projects().await?;
-//     db.delete_all_tasks().await?;
-
-//     db.create_many_clients(generate_clients_data(10)).await?;
-
-//     Ok(StatusCode::OK)
-// }
-
-// pub fn seed_clients() {
-//     let clients_list = generate_clients_data(5);
-// }
