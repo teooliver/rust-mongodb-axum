@@ -1,5 +1,8 @@
 use fake::{self, Fake};
-use mongodb::{bson::doc, Client};
+use mongodb::{
+    bson::{doc, Bson},
+    Client,
+};
 use rand::Rng;
 use warp::{http::StatusCode, Reply};
 
@@ -44,7 +47,7 @@ pub fn generate_clients_data(amount: u8) -> Vec<mongodb::bson::Document> {
     clients
 }
 
-pub fn create_project(clients_ids: Vec<&str>) -> ProjectRequest {
+pub fn create_project(clients_ids: Vec<Bson>) -> ProjectRequest {
     let rng_color_index = rand::thread_rng().gen_range(0..(PROJECT_COLORS.len() - 1));
     let rng_client_index = rand::thread_rng().gen_range(0..(clients_ids.len() - 1));
 
@@ -59,7 +62,7 @@ pub fn create_project(clients_ids: Vec<&str>) -> ProjectRequest {
     new_project
 }
 
-pub fn generate_projects_data(amount: u8, clients_ids: Vec<&str>) -> Vec<mongodb::bson::Document> {
+pub fn generate_projects_data(amount: u8, clients_ids: Vec<Bson>) -> Vec<mongodb::bson::Document> {
     let mut projects: Vec<mongodb::bson::Document> = vec![];
     let project = create_project(clients_ids);
 
@@ -89,10 +92,10 @@ pub async fn seed_projects(db: &DB) -> WebResult<impl Reply> {
     db.delete_all_projects().await?;
     db.delete_all_tasks().await?;
 
-    let client_ids = db.get_all_clients_ids().await;
+    let client_ids = db.get_all_clients_ids().await?;
 
-    // db.create_many_projects(generate_projects_data(10, client_ids))
-    // .await?;
+    db.create_many_projects(generate_projects_data(10, client_ids))
+        .await?;
 
     Ok(StatusCode::OK)
 }

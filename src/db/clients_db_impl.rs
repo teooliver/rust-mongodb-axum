@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use crate::error;
 use crate::error::Error::*;
 use crate::models::client::{ClientRequest, ClientResponse};
@@ -6,7 +8,7 @@ use bson::Document;
 use mongodb::bson::oid::ObjectId;
 use mongodb::bson::{self, doc, Bson};
 use mongodb::Collection;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 
 use super::db::{DB, DB_NAME};
@@ -42,6 +44,11 @@ impl DB {
             .find_one(query, None)
             .await
             .map_err(MongoQueryError)?;
+
+        if document.is_none() {
+            // return error::Err(warp::reject::not_found());
+            return Err(ObjNotFound);
+        }
 
         let result = self.doc_to_client(&document.expect("Document not found"))?;
 
@@ -95,7 +102,7 @@ impl DB {
         Ok(())
     }
 
-    pub async fn get_all_clients_ids(&self) -> Result<(), error::Error> {
+    pub async fn get_all_clients_ids(&self) -> Result<Vec<Bson>, error::Error> {
         let clients_ids = self
             .get_clients_collection()
             .distinct("_id", None, None)
@@ -108,16 +115,23 @@ impl DB {
 
         // Should I iterate over each item in clients_ids and convert them individualy to String?
         // In that cause how can I do that?
+        // println!("GOT HERE");
+        // let string_vec: Vec<String>;
+        for item in &clients_ids {
+            // let x = bson::from_bson<String>(item);
+            // let x = item;
+            // let x = item as bson::oid::ObjectId;
 
-        for item in clients_ids {
             // serialize_object_id_as_hex_string(item);
             // let x: std::result::Result<String, mongodb::bson::de::Error> = bson::from_bson(item);
 
+            // TODO
+            // convert item from Bson to String
+            // push to string_vec.
             println!("Bson Item {:?}", item); // prints ObjectId("61842402bcfb83e1b27b6d85")
         }
 
-        // TODO: Need to convert Vec<Bson, Global> to Vec<&str> or Vec<String>
-
-        Ok(())
+        Ok(clients_ids)
+        // Ok(string_vec)
     }
 }

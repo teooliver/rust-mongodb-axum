@@ -1,3 +1,4 @@
+#[allow(dead_code)]
 mod controllers;
 mod db;
 mod error;
@@ -9,16 +10,17 @@ use warp::{http::Method, Filter, Rejection};
 type Result<T> = std::result::Result<T, error::Error>;
 type WebResult<T> = std::result::Result<T, Rejection>;
 
-use crate::controllers::{projects, seed, tasks};
+use crate::controllers::{clients, projects, seed, tasks};
 use crate::db::db::DB;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    seed::generate_clients_data(10);
-
     let db = DB::init().await?;
-    seed::seed_clients(&db).await;
-    db.get_all_clients_ids().await;
+    // seed::generate_clients_data(10);
+    // seed::seed_clients(&db).await;
+    // seed::seed_projects(&db).await;
+
+    // db.get_all_clients_ids().await?;
 
     let cors = warp::cors().allow_any_origin();
     // .allow_header("content-type")
@@ -81,8 +83,16 @@ async fn main() -> Result<()> {
             .and(with_db(db.clone()))
             .and_then(projects::delete_project_handler));
 
+    let clients = warp::path("clients");
+    let client_routes = clients
+        .and(warp::get())
+        .and(warp::path::param())
+        .and(with_db(db.clone()))
+        .and_then(clients::fetch_client_handler);
+
     let routes = task_routes
         .or(projects_routes)
+        .or(client_routes)
         .with(cors)
         .recover(error::handle_rejection);
 
