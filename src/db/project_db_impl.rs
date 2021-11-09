@@ -1,12 +1,10 @@
-// use crate::db::DB;
-// use crate::db::DB_NAME;
 use crate::models::project::{ProjectRequest, ProjectSchema};
 use crate::{error::Error::*, Result};
 use mongodb::bson::oid::ObjectId;
 use mongodb::bson::{doc, Document};
 use mongodb::Collection;
 
-use super::db::{DB, DB_NAME};
+use super::{DB, DB_NAME};
 
 impl DB {
     fn get_projects_collection(&self) -> Collection<Document> {

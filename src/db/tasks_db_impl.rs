@@ -4,25 +4,11 @@ use chrono::prelude::*;
 use futures::StreamExt;
 use mongodb::bson;
 use mongodb::bson::{doc, document::Document, oid::ObjectId};
-use mongodb::{options::ClientOptions, Client, Collection};
+use mongodb::Collection;
 
-pub const DB_NAME: &str = "rust-time-tracker-base";
-
-#[derive(Clone, Debug)]
-pub struct DB {
-    pub client: Client,
-}
+use super::{DB, DB_NAME};
 
 impl DB {
-    pub async fn init() -> Result<Self> {
-        let mut client_options = ClientOptions::parse("mongodb://127.0.0.1:27017").await?;
-        client_options.app_name = Some(DB_NAME.to_string());
-
-        Ok(Self {
-            client: Client::with_options(client_options)?,
-        })
-    }
-
     fn get_tasks_collection(&self) -> Collection<Document> {
         self.client.database(DB_NAME).collection("tasks")
     }

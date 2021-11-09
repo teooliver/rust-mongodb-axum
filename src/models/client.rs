@@ -1,4 +1,3 @@
-use mongodb::bson::oid::ObjectId;
 use mongodb::bson::DateTime;
 use serde::{self, Deserialize, Serialize};
 

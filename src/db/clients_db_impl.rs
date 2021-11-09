@@ -1,17 +1,13 @@
-use std::str::FromStr;
-
 use crate::error;
 use crate::error::Error::*;
 use crate::models::client::{ClientRequest, ClientResponse};
-use bson::serde_helpers::serialize_object_id_as_hex_string;
+
 use bson::Document;
 use mongodb::bson::oid::ObjectId;
-use mongodb::bson::{self, doc, Bson};
+use mongodb::bson::{self, doc};
 use mongodb::Collection;
-use serde::{Deserialize, Serialize};
-use serde_json::{Map, Value};
 
-use super::db::{DB, DB_NAME};
+use super::{DB, DB_NAME};
 
 impl DB {
     fn get_clients_collection(&self) -> Collection<Document> {
@@ -39,6 +35,8 @@ impl DB {
         let query = doc! {
             "_id": oid,
         };
+
+        println!("QUERY {:?}", query);
         let document = self
             .get_clients_collection()
             .find_one(query, None)
@@ -50,7 +48,8 @@ impl DB {
             return Err(ObjNotFound);
         }
 
-        let result = self.doc_to_client(&document.expect("Document not found"))?;
+        println!("DCOUMENT {:?}", &document);
+        let result = self.doc_to_client(&document.unwrap())?;
 
         Ok(result)
     }
@@ -60,6 +59,8 @@ impl DB {
             .insert_one(
                 doc! {
                 "name": _entry.name.clone(),
+                "created_at": chrono::Utc::now().clone(),
+                "updated_at": chrono::Utc::now().clone(),
                 },
                 None,
             )
@@ -109,32 +110,11 @@ impl DB {
             .await
             .map_err(MongoQueryError)?;
 
-        // The `.distinct` method returns a Vec<Bson, Global>
-        // I would like to convert clients_ids from Vec<Bson, Global> to Vec<String>.
-        // I tried everything I could but can't figure this one out.
-
-        // Should I iterate over each item in clients_ids and convert them individualy to String?
-        // In that cause how can I do that?
-        // println!("GOT HERE");
         let mut string_vec: Vec<String> = vec![];
         for item in &clients_ids {
-            // let x = bson::from_bson<String>(item);
-            // let x = item;
-            // let x = item as bson::oid::ObjectId;
-
-            // serialize_object_id_as_hex_string(item);
-            // let x: std::result::Result<String, mongodb::bson::de::Error> = bson::from_bson(item);
-
-            // TODO
-            // convert item from Bson to String
-            // push to string_vec.
             string_vec.push(item.as_object_id().unwrap().to_hex());
-            // println!("Bson Item {:?}", item.as_object_id().unwrap().to_hex()); // prints ObjectId("61842402bcfb83e1b27b6d85")
         }
 
-        println!("{:?}", string_vec);
-
         Ok(string_vec)
-        // Ok(string_vec)
     }
 }

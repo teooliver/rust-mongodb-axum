@@ -1,5 +1,6 @@
+use crate::db::DB;
+use crate::models::client::ClientRequest;
 use crate::WebResult;
-use crate::{db::db::DB, models::client::ClientRequest};
 use warp::{http::StatusCode, reject, reply::json, Reply};
 
 // pub async fn fetch_all_clients_handler(db: DB) -> WebResult<impl Reply> {

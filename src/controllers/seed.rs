@@ -1,14 +1,9 @@
+use crate::db::DB;
 use crate::error::Error::InvalidIDError;
-use crate::{
-    db::db::DB,
-    models::{client::ClientRequest, project::ProjectRequest},
-    WebResult,
-};
+
+use crate::{models::project::ProjectRequest, WebResult};
 use fake::{self, Fake};
-use mongodb::{
-    bson::{doc, oid::ObjectId, Bson},
-    Client,
-};
+use mongodb::bson::{doc, oid::ObjectId};
 use rand::Rng;
 use warp::{http::StatusCode, Reply};
 
@@ -29,19 +24,15 @@ pub const PROJECT_COLORS: [&str; 10] = [
 // pub const PROJECT_NAMES = [];
 // pub const TASK_NAMES = [];
 
-fn create_client() -> ClientRequest {
-    let new_client = ClientRequest {
-        name: fake::faker::company::en::CompanyName().fake(),
-    };
-
-    new_client
-}
-
 pub fn generate_clients_data(amount: u8) -> Vec<mongodb::bson::Document> {
     let mut clients: Vec<mongodb::bson::Document> = vec![];
 
     for _n in 1..amount {
-        clients.push(doc! {"name": create_client().name});
+        clients.push(doc! {
+            "name": fake::faker::company::en::CompanyName().fake::<String>().to_string(),
+            "created_at": chrono::Utc::now().clone(),
+            "updated_at": chrono::Utc::now().clone(),
+        });
     }
 
     clients
@@ -95,6 +86,7 @@ pub async fn seed_clients(db: &DB) -> WebResult<impl Reply> {
 
     Ok(StatusCode::OK)
 }
+
 pub async fn seed_projects(db: &DB) -> WebResult<impl Reply> {
     db.delete_all_projects().await?;
     db.delete_all_tasks().await?;

@@ -5,20 +5,22 @@ mod error;
 mod models;
 
 use std::convert::Infallible;
-use warp::{http::Method, Filter, Rejection};
+use warp::{Filter, Rejection};
 
 type Result<T> = std::result::Result<T, error::Error>;
 type WebResult<T> = std::result::Result<T, Rejection>;
 
-use crate::controllers::{clients, projects, seed, tasks};
-use crate::db::db::DB;
+use crate::{
+    controllers::{clients, projects, seed, tasks},
+    db::DB,
+};
 
 #[tokio::main]
 async fn main() -> Result<()> {
     let db = DB::init().await?;
     seed::generate_clients_data(10);
     seed::seed_clients(&db).await;
-    seed::seed_projects(&db).await;
+    // seed::seed_projects(&db).await;
 
     // db.get_all_clients_ids().await?;
 
