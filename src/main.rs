@@ -18,11 +18,6 @@ use crate::{
 #[tokio::main]
 async fn main() -> Result<()> {
     let db = DB::init().await?;
-    seed::generate_clients_data(10);
-    seed::seed_clients(&db).await;
-    // seed::seed_projects(&db).await;
-
-    // db.get_all_clients_ids().await?;
 
     let cors = warp::cors().allow_any_origin();
     // .allow_header("content-type")
@@ -97,9 +92,28 @@ async fn main() -> Result<()> {
             .and(with_db(db.clone()))
             .and_then(clients::create_client_handler));
 
+    let seed = warp::path("seed");
+
+    let seed_routes = seed
+        .and(warp::get())
+        .and(warp::path("clients"))
+        .and(with_db(db.clone()))
+        .and_then(seed::seed_clients)
+        .or(seed
+            .and(warp::get())
+            .and(warp::path("projects"))
+            .and(with_db(db.clone()))
+            .and_then(seed::seed_projects))
+        .or(seed
+            .and(warp::get())
+            .and(warp::path("tasks"))
+            .and(with_db(db.clone()))
+            .and_then(seed::seed_tasks));
+
     let routes = task_routes
         .or(projects_routes)
         .or(client_routes)
+        .or(seed_routes)
         .with(cors)
         .recover(error::handle_rejection);
 

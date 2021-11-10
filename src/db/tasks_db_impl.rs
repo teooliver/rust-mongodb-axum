@@ -155,4 +155,12 @@ impl DB {
 
         Ok(())
     }
+
+    pub async fn create_many_tasks(&self, _entry: Vec<mongodb::bson::Document>) -> Result<()> {
+        self.get_tasks_collection()
+            .insert_many(_entry, None)
+            .await
+            .map_err(MongoQueryError)?;
+        Ok(())
+    }
 }

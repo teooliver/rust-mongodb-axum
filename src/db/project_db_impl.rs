@@ -136,4 +136,19 @@ impl DB {
             .map_err(MongoQueryError)?;
         Ok(())
     }
+
+    pub async fn get_all_projects_ids(&self) -> Result<Vec<String>> {
+        let projects_ids = self
+            .get_projects_collection()
+            .distinct("_id", None, None)
+            .await
+            .map_err(MongoQueryError)?;
+
+        let mut string_vec: Vec<String> = vec![];
+        for item in &projects_ids {
+            string_vec.push(item.as_object_id().unwrap().to_hex());
+        }
+
+        Ok(string_vec)
+    }
 }
