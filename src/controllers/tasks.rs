@@ -20,7 +20,7 @@ pub async fn create_task_handler(body: TaskRequest, db: DB) -> WebResult<impl Re
 
 pub async fn delete_all_tasks_handler(db: DB) -> WebResult<impl Reply> {
     db.delete_all_tasks().await.map_err(|e| reject::custom(e))?;
-    // TODO: Return the delete objects
+    // TODO: Return the deleted objects
     Ok(StatusCode::OK)
 }
 

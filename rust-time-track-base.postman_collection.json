@@ -24,12 +24,10 @@
 							"raw": "{  \n    \"name\": \"hello40\",\n    \"time_in_seconds\": 0,\n    \"initial_time\": \"2021-10-21T22:10:31.990Z\",\n    \"end_time\": \"2021-10-21T22:11:59.135Z\",\n    \"project\": \"lfsjdlfksjdlf\"\n    \n}"
 						},
 						"url": {
-							"raw": "http://localhost:8080/tasks/",
-							"protocol": "http",
+							"raw": "{{rust_time_track_base_server_url}}/tasks/",
 							"host": [
-								"localhost"
+								"{{rust_time_track_base_server_url}}"
 							],
-							"port": "8080",
 							"path": [
 								"tasks",
 								""
@@ -44,12 +42,10 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/tasks/6173442a96c7547057c9ee99",
-							"protocol": "http",
+							"raw": "{{rust_time_track_base_server_url}}/tasks/6173442a96c7547057c9ee99",
 							"host": [
-								"localhost"
+								"{{rust_time_track_base_server_url}}"
 							],
-							"port": "8080",
 							"path": [
 								"tasks",
 								"6173442a96c7547057c9ee99"
@@ -71,12 +67,10 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "http://localhost:8080/tasks/all",
-							"protocol": "http",
+							"raw": "{{rust_time_track_base_server_url}}/tasks/all",
 							"host": [
-								"localhost"
+								"{{rust_time_track_base_server_url}}"
 							],
-							"port": "8080",
 							"path": [
 								"tasks",
 								"all"
@@ -101,12 +95,10 @@
 							"raw": "{       \"name\": \"hello\",\n        \"time_in_seconds\": 0,\n        \"initial_time\": \"2021-10-19T20:25:17.734Z\",\n        \"end_time\": \"2021-10-19T20:25:34.284Z\"\n}"
 						},
 						"url": {
-							"raw": "http://localhost:8080/tasks/616dfa30cad6fe2a27360f4d",
-							"protocol": "http",
+							"raw": "{{rust_time_track_base_server_url}}/tasks/616dfa30cad6fe2a27360f4d",
 							"host": [
-								"localhost"
+								"{{rust_time_track_base_server_url}}"
 							],
-							"port": "8080",
 							"path": [
 								"tasks",
 								"616dfa30cad6fe2a27360f4d"
@@ -131,12 +123,10 @@
 							"raw": "{       \"name\": \"hello\",\n        \"time_in_seconds\": 0,\n        \"initial_time\": \"2021-10-19T20:25:17.734Z\",\n        \"end_time\": \"2021-10-19T20:25:34.284Z\"\n}"
 						},
 						"url": {
-							"raw": "http://localhost:8080/tasks/61787c1a6c6757ef90211362",
-							"protocol": "http",
+							"raw": "{{rust_time_track_base_server_url}}/tasks/61787c1a6c6757ef90211362",
 							"host": [
-								"localhost"
+								"{{rust_time_track_base_server_url}}"
 							],
-							"port": "8080",
 							"path": [
 								"tasks",
 								"61787c1a6c6757ef90211362"
@@ -151,12 +141,10 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/tasks/dangerously-delete-all-tasks",
-							"protocol": "http",
+							"raw": "{{rust_time_track_base_server_url}}/tasks/dangerously-delete-all-tasks",
 							"host": [
-								"localhost"
+								"{{rust_time_track_base_server_url}}"
 							],
-							"port": "8080",
 							"path": [
 								"tasks",
 								"dangerously-delete-all-tasks"
@@ -176,12 +164,10 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/projects/6189730d1f9efd79740112dc",
-							"protocol": "http",
+							"raw": "{{rust_time_track_base_server_url}}/projects/6189730d1f9efd79740112dc",
 							"host": [
-								"localhost"
+								"{{rust_time_track_base_server_url}}"
 							],
-							"port": "8080",
 							"path": [
 								"projects",
 								"6189730d1f9efd79740112dc"
@@ -206,12 +192,10 @@
 							"raw": "{  \n   \"name\":\"project_name\",\n    \"color\": \"project_color\",\n    \"estimate\": \"project_estimate\",\n    \"status\": \"project_status\"\n    \n}"
 						},
 						"url": {
-							"raw": "http://localhost:8080/projects/",
-							"protocol": "http",
+							"raw": "{{rust_time_track_base_server_url}}/projects/",
 							"host": [
-								"localhost"
+								"{{rust_time_track_base_server_url}}"
 							],
-							"port": "8080",
 							"path": [
 								"projects",
 								""
@@ -236,12 +220,10 @@
 							"raw": "{       \"name\": \"hello\",\n        \"time_in_seconds\": 0,\n        \"initial_time\": \"2021-10-19T20:25:17.734Z\",\n        \"end_time\": \"2021-10-19T20:25:34.284Z\"\n}"
 						},
 						"url": {
-							"raw": "http://localhost:8080/tasks/61787c1a6c6757ef90211362",
-							"protocol": "http",
+							"raw": "{{rust_time_track_base_server_url}}/tasks/61787c1a6c6757ef90211362",
 							"host": [
-								"localhost"
+								"{{rust_time_track_base_server_url}}"
 							],
-							"port": "8080",
 							"path": [
 								"tasks",
 								"61787c1a6c6757ef90211362"
@@ -256,12 +238,10 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/tasks/dangerously-delete-all-tasks",
-							"protocol": "http",
+							"raw": "{{rust_time_track_base_server_url}}/tasks/dangerously-delete-all-tasks",
 							"host": [
-								"localhost"
+								"{{rust_time_track_base_server_url}}"
 							],
-							"port": "8080",
 							"path": [
 								"tasks",
 								"dangerously-delete-all-tasks"
@@ -281,12 +261,10 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/clients/61897206c349fc27c9e6961b",
-							"protocol": "http",
+							"raw": "{{rust_time_track_base_server_url}}/clients/61897206c349fc27c9e6961b",
 							"host": [
-								"localhost"
+								"{{rust_time_track_base_server_url}}"
 							],
-							"port": "8080",
 							"path": [
 								"clients",
 								"61897206c349fc27c9e6961b"
@@ -311,21 +289,13 @@
 							"raw": "{\n    \"name\": \"Hello Client\"\n}"
 						},
 						"url": {
-							"raw": "http://localhost:8080/clients/?",
-							"protocol": "http",
+							"raw": "{{rust_time_track_base_server_url}}/clients/",
 							"host": [
-								"localhost"
+								"{{rust_time_track_base_server_url}}"
 							],
-							"port": "8080",
 							"path": [
 								"clients",
 								""
-							],
-							"query": [
-								{
-									"key": "",
-									"value": null
-								}
 							]
 						}
 					},
@@ -342,12 +312,10 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/seed/clients",
-							"protocol": "http",
+							"raw": "{{rust_time_track_base_server_url}}/seed/clients",
 							"host": [
-								"localhost"
+								"{{rust_time_track_base_server_url}}"
 							],
-							"port": "8080",
 							"path": [
 								"seed",
 								"clients"
@@ -362,12 +330,10 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/seed/projects",
-							"protocol": "http",
+							"raw": "{{rust_time_track_base_server_url}}/seed/projects",
 							"host": [
-								"localhost"
+								"{{rust_time_track_base_server_url}}"
 							],
-							"port": "8080",
 							"path": [
 								"seed",
 								"projects"
@@ -381,7 +347,16 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": null
+						"url": {
+							"raw": "{{rust_time_track_base_server_url}}/seed/tasks",
+							"host": [
+								"{{rust_time_track_base_server_url}}"
+							],
+							"path": [
+								"seed",
+								"tasks"
+							]
+						}
 					},
 					"response": []
 				},
@@ -390,7 +365,16 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": null
+						"url": {
+							"raw": "{{rust_time_track_base_server_url}}/seed/remove",
+							"host": [
+								"{{rust_time_track_base_server_url}}"
+							],
+							"path": [
+								"seed",
+								"remove"
+							]
+						}
 					},
 					"response": []
 				}
