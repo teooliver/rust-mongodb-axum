@@ -108,7 +108,12 @@ async fn main() -> Result<()> {
             .and(warp::get())
             .and(warp::path("tasks"))
             .and(with_db(db.clone()))
-            .and_then(seed::seed_tasks));
+            .and_then(seed::seed_tasks))
+        .or(seed
+            .and(warp::get())
+            .and(warp::path("remove"))
+            .and(with_db(db.clone()))
+            .and_then(seed::remove_all_data));
 
     let routes = task_routes
         .or(projects_routes)

@@ -28,4 +28,6 @@ println!("DURATION {:?}", duration);
 - Create type for json errors.
 - Return json error messages from handlers.
 - Better Error handling
-- Extract Error handling functions to its on `lib`
+- Extract Error handling functions to its own `lib`
+- Add `created_at` and `updated_at` to all Models
+- Better return messages route success (instead of just 200);

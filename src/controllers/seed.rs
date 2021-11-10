@@ -1,4 +1,4 @@
-use crate::db::{self, DB};
+use crate::db::DB;
 use crate::error::Error::InvalidIDError;
 
 use crate::models::task::TaskRequest;
@@ -143,6 +143,14 @@ pub async fn seed_tasks(db: DB) -> WebResult<impl Reply> {
 
     db.create_many_tasks(generate_tasks_data(10, projects_ids))
         .await?;
+
+    Ok(StatusCode::OK)
+}
+
+pub async fn remove_all_data(db: DB) -> WebResult<impl Reply> {
+    db.delete_all_clients().await?;
+    db.delete_all_projects().await?;
+    db.delete_all_tasks().await?;
 
     Ok(StatusCode::OK)
 }

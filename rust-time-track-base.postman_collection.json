@@ -384,6 +384,15 @@
 						"url": null
 					},
 					"response": []
+				},
+				{
+					"name": "Remove All Data",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": null
+					},
+					"response": []
 				}
 			]
 		}
