@@ -31,3 +31,4 @@ println!("DURATION {:?}", duration);
 - Extract Error handling functions to its own `lib`
 - Add `created_at` and `updated_at` to all Models
 - Better return messages route success (instead of just 200);
+- Extract Routes to its own files

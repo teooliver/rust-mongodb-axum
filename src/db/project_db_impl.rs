@@ -98,6 +98,9 @@ impl DB {
                 "color": _entry.color.clone(),
                 "estimate": _entry.estimate.clone(),
                 "status": _entry.status.clone(),
+                "client": _entry.client,
+                "created_at": chrono::Utc::now().clone(),
+                "updated_at": chrono::Utc::now().clone(),
                 },
                 None,
             )

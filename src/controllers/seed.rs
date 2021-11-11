@@ -63,15 +63,17 @@ pub fn generate_projects_data(
     clients_ids: Vec<String>,
 ) -> Vec<mongodb::bson::Document> {
     let mut projects: Vec<mongodb::bson::Document> = vec![];
-    let project = create_project(clients_ids);
 
     for _n in 1..amount {
+        let project = create_project(clients_ids.clone());
         projects.push(doc! {
-            "client": project.client.to_string(),
+            "client": project.client,
             "name": project.name.to_string(),
             "color": project.color.to_string(),
             "estimate": project.estimate.to_string(),
             "status": project.status.to_string(),
+            "created_at": chrono::Utc::now().clone(),
+            "updated_at": chrono::Utc::now().clone(),
         });
     }
 
@@ -90,7 +92,7 @@ pub fn create_task(project_ids: Vec<String>) -> TaskRequest {
         time_in_seconds: 10000,
         initial_time: chrono::Utc::now().clone().to_string(),
         end_time: chrono::Utc::now().clone().to_string(),
-        project: Some(project_id.to_hex()),
+        project: Some(project_id),
     };
 
     // get_all_projects_ids
@@ -99,15 +101,17 @@ pub fn create_task(project_ids: Vec<String>) -> TaskRequest {
 
 pub fn generate_tasks_data(amount: u8, clients_ids: Vec<String>) -> Vec<mongodb::bson::Document> {
     let mut tasks: Vec<mongodb::bson::Document> = vec![];
-    let task = create_task(clients_ids);
 
     for _n in 1..amount {
+        let task = create_task(clients_ids.clone());
         tasks.push(doc! {
             "name": task.name.to_string(),
-            "time_in_seconds": task.time_in_seconds.to_string(),
+            "time_in_seconds": task.time_in_seconds,
             "initial_time": task.initial_time.to_string(),
             "end_time": task.end_time.to_string(),
             "project": Some(task.project.to_owned()),
+            "created_at": chrono::Utc::now().clone(),
+            "updated_at": chrono::Utc::now().clone(),
         });
     }
 

@@ -17,26 +17,28 @@ impl DB {
         let id = doc.get_object_id("_id")?;
         let name = doc.get_str("name")?;
         let time_in_seconds = doc.get_i64("time_in_seconds")?;
-        let initial_time = doc.get_datetime("initial_time")?;
-        let end_time = doc.get_datetime("end_time")?;
-        let project = doc.get_str("project").ok();
+        let initial_time = doc.get_str("initial_time")?;
+        let end_time = doc.get_str("end_time")?;
+        let project = doc.get_object_id("project").ok();
         let created_at = doc.get_datetime("created_at")?;
         let updated_at = doc.get_datetime("updated_at")?;
 
-        let match_project: Option<String> = match project {
-            Some(project) => Some(project.to_owned()),
-            None => None,
-        };
+        // let match_project: Option<ObjectId> = match project {
+        //     project => Some(project),
+        //     None => None,
+        // };
 
         let task = TaskResponse {
             _id: id.to_hex(),
             name: name.to_owned(),
             time_in_seconds: time_in_seconds.to_owned(),
-            initial_time: initial_time.to_chrono().to_rfc3339(),
-            end_time: end_time.to_chrono().to_rfc3339(),
-            project: match_project,
-            created_at: created_at.to_chrono().to_rfc3339(),
-            updated_at: updated_at.to_chrono().to_rfc3339(),
+            initial_time: initial_time.to_string(),
+            // initial_time: initial_time.to_chrono().to_rfc3339(),
+            end_time: end_time.to_string(),
+            // end_time: end_time.to_chrono().to_rfc3339(),
+            project,
+            created_at: created_at.to_string(),
+            updated_at: updated_at.to_string(),
         };
 
         Ok(task)
@@ -67,6 +69,8 @@ impl DB {
             .await
             .map_err(MongoQueryError)?;
 
+        println!("{:?}", document);
+
         if document.is_none() {
             // return error::Err(warp::reject::not_found());
             return Err(ObjNotFound);
@@ -82,7 +86,7 @@ impl DB {
         let initial_time: bson::DateTime = chrono_dt.into();
         let chrono_endtime: chrono::DateTime<Utc> = _entry.end_time.parse().unwrap();
         let end_time: bson::DateTime = chrono_endtime.into();
-        let project: Option<String> = _entry.project.clone();
+        let project: Option<ObjectId> = _entry.project.clone();
 
         self.get_tasks_collection()
             .insert_one(
@@ -110,7 +114,7 @@ impl DB {
         let initial_time: bson::DateTime = chrono_dt.into();
         let chrono_endtime: chrono::DateTime<Utc> = _entry.end_time.parse().unwrap();
         let end_time: bson::DateTime = chrono_endtime.into();
-        let project: Option<String> = _entry.project.clone();
+        let project: Option<ObjectId> = _entry.project.clone();
 
         let query = doc! {
             "_id": oid,

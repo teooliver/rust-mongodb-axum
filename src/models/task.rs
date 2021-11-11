@@ -25,7 +25,7 @@ pub struct TaskRequest {
     pub time_in_seconds: i64,
     pub initial_time: String,
     pub end_time: String,
-    pub project: Option<String>,
+    pub project: Option<ObjectId>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -35,7 +35,7 @@ pub struct TaskResponse {
     pub time_in_seconds: i64,
     pub initial_time: String,
     pub end_time: String,
-    pub project: Option<String>,
+    pub project: Option<ObjectId>,
     pub created_at: String,
     pub updated_at: String,
 }

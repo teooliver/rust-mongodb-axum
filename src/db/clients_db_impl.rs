@@ -36,7 +36,6 @@ impl DB {
             "_id": oid,
         };
 
-        println!("QUERY {:?}", query);
         let document = self
             .get_clients_collection()
             .find_one(query, None)
@@ -48,7 +47,6 @@ impl DB {
             return Err(ObjNotFound);
         }
 
-        println!("DCOUMENT {:?}", &document);
         let result = self.doc_to_client(&document.unwrap())?;
 
         Ok(result)
