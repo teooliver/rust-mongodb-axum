@@ -20,3 +20,9 @@ pub async fn create_client_handler(body: ClientRequest, db: DB) -> WebResult<imp
     // TODO: Return the created object
     Ok(StatusCode::CREATED)
 }
+
+pub async fn delete_client_handler(id: String, db: DB) -> WebResult<impl Reply> {
+    db.delete_client(&id).await.map_err(|e| reject::custom(e))?;
+    // Return the deleted object
+    Ok(StatusCode::OK)
+}
