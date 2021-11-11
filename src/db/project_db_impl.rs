@@ -50,45 +50,56 @@ impl DB {
         Ok(result)
     }
 
-    // pub fn get_projects_grouped_by_client(&self) {
+    pub async fn get_projects_grouped_by_client(&self) {
+        let lookup_clients = doc! {
+            "$lookup": {
+                "from": "clients",
+                "localField": "client",
+                "foreignField": "_id",
+                "as": "clientName",
+            }
+        };
 
-    //     let pipeline = doc! {
-    //         [
-    //   {
-    //     $lookup: {
-    //       from: 'clients',
-    //       localField: 'client',
-    //       foreignField: '_id',
-    //       as: 'clientName',
-    //     },
-    //   },
-    //   {
-    //     $sort: {
-    //       updatedAt: -1,
-    //     },
-    //   },
-    //   {
-    //     $project: {
-    //       _id: '$_id',
-    //       name: '$name',
-    //       color: '$color',
-    //       clientName: { $arrayElemAt: ['$clientName.name', 0] },
-    //       estimate: '$estimate',
-    //       status: '$status',
-    //       subprojects: '$subprojects',
-    //     },
-    //   },
-    //   {
-    //     $group: {
-    //       _id: '$clientName',
-    //       projects: { $push: '$$ROOT' },
-    //     },
-    //   },
-    // ]
-    //     };
+        let sort = doc! {
+             "$sort": {
+                "updatedAt": -1,
+            },
+        };
 
-    //     self.get_projects_collection().aggregate(pipeline, None);
-    // };
+        let project = doc! {
+            "$project": {
+                "_id": "$_id",
+                "name": "$name",
+                "color": "$color",
+                "clientName": { "$arrayElemAt": ["$clientName.name", 0] },
+                "estimate": "$estimate",
+                "status": "$status",
+                "subprojects": "$subprojects",
+            },
+        };
+
+        let group = doc! {
+            "$group": {
+                "_id": "$clientName",
+                "projects": { "$push": "$$ROOT" },
+             },
+        };
+
+        let pipeline = vec![lookup_clients, sort, project, group];
+
+        let mut results = self
+            .get_projects_collection()
+            .aggregate(pipeline, None)
+            .await?;
+
+        while let Some(result) = results.next().await {
+            // let doc: MovieSummary = bson::from_document(result?)?;
+
+            // println!("* {}, comments={:?}", doc, doc.comments);
+        }
+
+        todo!();
+    }
 
     pub async fn create_project(&self, _entry: &ProjectRequest) -> Result<()> {
         self.get_projects_collection()
