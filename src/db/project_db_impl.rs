@@ -1,5 +1,6 @@
-use crate::models::project::{ProjectRequest, ProjectSchema};
+use crate::models::project::{ProjectRequest, ProjectResponse, ProjectSchema};
 use crate::{error::Error::*, Result};
+use futures::StreamExt;
 use mongodb::bson::oid::ObjectId;
 use mongodb::bson::{doc, Document};
 use mongodb::Collection;
@@ -11,25 +12,31 @@ impl DB {
         self.client.database(DB_NAME).collection("projects")
     }
 
-    pub fn doc_to_project(&self, doc: &Document) -> Result<ProjectSchema> {
+    pub fn doc_to_project(&self, doc: &Document) -> Result<ProjectResponse> {
         let id = doc.get_object_id("_id")?;
+        let client = doc.get_object_id("client")?;
         let name = doc.get_str("name")?;
         let color = doc.get_str("color")?;
         let estimate = doc.get_str("estimate")?;
         let status = doc.get_str("status")?;
+        let created_at = doc.get_datetime("created_at")?;
+        let updated_at = doc.get_datetime("updated_at")?;
 
-        let project = ProjectSchema {
+        let project = ProjectResponse {
             _id: id.to_hex(),
+            client: client.to_hex(),
             name: name.to_owned(),
             color: color.to_owned(),
             estimate: estimate.to_owned(),
             status: status.to_owned(),
+            created_at: created_at.to_string(),
+            updated_at: updated_at.to_string(),
         };
 
         Ok(project)
     }
 
-    pub async fn find_project(&self, id: &str) -> Result<ProjectSchema> {
+    pub async fn find_project(&self, id: &str) -> Result<ProjectResponse> {
         let oid = ObjectId::parse_str(id).map_err(|_| InvalidIDError(id.to_owned()))?;
         let query = doc! {
             "_id": oid,
@@ -50,7 +57,9 @@ impl DB {
         Ok(result)
     }
 
-    pub async fn get_projects_grouped_by_client(&self) {
+    pub async fn get_projects_grouped_by_client(&self) -> Result<Vec<ProjectResponse>> {
+        println!("========== GOT HERE =========");
+
         let lookup_clients = doc! {
             "$lookup": {
                 "from": "clients",
@@ -87,18 +96,21 @@ impl DB {
 
         let pipeline = vec![lookup_clients, sort, project, group];
 
-        let mut results = self
+        let mut cursor = self
             .get_projects_collection()
             .aggregate(pipeline, None)
             .await?;
 
-        while let Some(result) = results.next().await {
+        let mut results: Vec<ProjectResponse> = Vec::new();
+        while let Some(doc) = cursor.next().await {
+            results.push(self.doc_to_project(&doc?)?)
             // let doc: MovieSummary = bson::from_document(result?)?;
-
             // println!("* {}, comments={:?}", doc, doc.comments);
         }
 
-        todo!();
+        println!("{:?}", results);
+
+        Ok(results)
     }
 
     pub async fn create_project(&self, _entry: &ProjectRequest) -> Result<()> {

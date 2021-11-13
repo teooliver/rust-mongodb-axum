@@ -7,7 +7,7 @@ use serde::{self, Deserialize, Serialize};
 pub struct TaskSchema {
     pub _id: String, //ObjectId
     pub name: String,
-    pub time_in_seconds: i64,
+    pub time_in_seconds: i32,
     #[serde(with = "bson_datetime_as_rfc3339_string")]
     pub initial_time: DateTime,
     #[serde(with = "bson_datetime_as_rfc3339_string")]
@@ -22,7 +22,7 @@ pub struct TaskSchema {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct TaskRequest {
     pub name: String,
-    pub time_in_seconds: i64,
+    pub time_in_seconds: i32,
     pub initial_time: String,
     pub end_time: String,
     pub project: Option<ObjectId>,
@@ -32,10 +32,15 @@ pub struct TaskRequest {
 pub struct TaskResponse {
     pub _id: String,
     pub name: String,
-    pub time_in_seconds: i64,
+    pub time_in_seconds: i32,
     pub initial_time: String,
     pub end_time: String,
-    pub project: Option<ObjectId>,
+    pub project: Option<String>, //hex
     pub created_at: String,
     pub updated_at: String,
 }
+
+// enum Project{
+//     ObjectId,
+//     String
+// }

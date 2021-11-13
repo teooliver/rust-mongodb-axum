@@ -4,6 +4,7 @@ use crate::error::Error::InvalidIDError;
 use crate::models::task::TaskRequest;
 use crate::{models::project::ProjectRequest, WebResult};
 use fake::{self, Fake};
+use mongodb::bson::Document;
 use mongodb::bson::{doc, oid::ObjectId};
 use rand::Rng;
 use warp::{http::StatusCode, Reply};
@@ -80,22 +81,23 @@ pub fn generate_projects_data(
     projects
 }
 
-pub fn create_task(project_ids: Vec<String>) -> TaskRequest {
+pub fn create_task(project_ids: Vec<String>) -> Document {
     let rng_project_index = rand::thread_rng().gen_range(0..(project_ids.len() - 1));
 
     let project_id = ObjectId::parse_str(project_ids[rng_project_index].to_string())
         .map_err(|_| InvalidIDError(project_ids[rng_project_index].to_owned()))
         .unwrap();
 
-    let new_task = TaskRequest {
-        name: fake::faker::company::en::CompanyName().fake(),
-        time_in_seconds: 10000,
-        initial_time: chrono::Utc::now().clone().to_string(),
-        end_time: chrono::Utc::now().clone().to_string(),
-        project: Some(project_id),
+    let new_task = doc! {
+        "name": fake::faker::company::en::CompanyName().fake::<String>().to_string(),
+        "time_in_seconds": 1000,
+        "initial_time": chrono::Utc::now().clone(),
+        "end_time": chrono::Utc::now().clone(),
+        "project": Some(project_id),
+        "created_at": chrono::Utc::now().clone(),
+        "updated_at": chrono::Utc::now().clone(),
     };
 
-    // get_all_projects_ids
     new_task
 }
 
@@ -104,15 +106,7 @@ pub fn generate_tasks_data(amount: u8, clients_ids: Vec<String>) -> Vec<mongodb:
 
     for _n in 1..amount {
         let task = create_task(clients_ids.clone());
-        tasks.push(doc! {
-            "name": task.name.to_string(),
-            "time_in_seconds": task.time_in_seconds,
-            "initial_time": task.initial_time.to_string(),
-            "end_time": task.end_time.to_string(),
-            "project": Some(task.project.to_owned()),
-            "created_at": chrono::Utc::now().clone(),
-            "updated_at": chrono::Utc::now().clone(),
-        });
+        tasks.push(task);
     }
 
     tasks

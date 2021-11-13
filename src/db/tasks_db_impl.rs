@@ -14,12 +14,13 @@ impl DB {
     }
 
     fn doc_to_task(&self, doc: &Document) -> Result<TaskResponse> {
+        // println!("{:?}", doc);
         let id = doc.get_object_id("_id")?;
         let name = doc.get_str("name")?;
-        let time_in_seconds = doc.get_i64("time_in_seconds")?;
-        let initial_time = doc.get_str("initial_time")?;
-        let end_time = doc.get_str("end_time")?;
-        let project = doc.get_object_id("project").ok();
+        let time_in_seconds = doc.get_i32("time_in_seconds")?;
+        let initial_time = doc.get_datetime("initial_time")?;
+        let end_time = doc.get_datetime("end_time")?;
+        let project = doc.get_object_id("project")?;
         let created_at = doc.get_datetime("created_at")?;
         let updated_at = doc.get_datetime("updated_at")?;
 
@@ -28,17 +29,22 @@ impl DB {
         //     None => None,
         // };
 
+        // if project.is_none() {
+        //     // return error::Err(warp::reject::not_found());
+        //     return Err(ObjNotFound);
+        // }
+
         let task = TaskResponse {
             _id: id.to_hex(),
             name: name.to_owned(),
             time_in_seconds: time_in_seconds.to_owned(),
-            initial_time: initial_time.to_string(),
-            // initial_time: initial_time.to_chrono().to_rfc3339(),
-            end_time: end_time.to_string(),
-            // end_time: end_time.to_chrono().to_rfc3339(),
-            project,
-            created_at: created_at.to_string(),
-            updated_at: updated_at.to_string(),
+            // initial_time: initial_time.to_string(),
+            initial_time: initial_time.to_chrono().to_rfc3339(),
+            // end_time: end_time.to_string(),
+            end_time: end_time.to_chrono().to_rfc3339(),
+            project: Some(project.to_hex()),
+            created_at: created_at.to_chrono().to_rfc3339(),
+            updated_at: updated_at.to_chrono().to_rfc3339(),
         };
 
         Ok(task)
@@ -52,9 +58,13 @@ impl DB {
             .map_err(MongoQueryError)?;
 
         let mut result: Vec<TaskResponse> = Vec::new();
+
+        // println!("{:?}", cursor);
         while let Some(doc) = cursor.next().await {
             result.push(self.doc_to_task(&doc?)?);
+            println!("+++++ GOT HERE++++");
         }
+
         Ok(result)
     }
 
@@ -69,7 +79,7 @@ impl DB {
             .await
             .map_err(MongoQueryError)?;
 
-        println!("{:?}", document);
+        // println!("{:?}", document);
 
         if document.is_none() {
             // return error::Err(warp::reject::not_found());

@@ -70,6 +70,11 @@ async fn main() -> Result<()> {
             .and(with_db(db.clone()))
             .and_then(projects::fetch_project_handler))
         .or(projects
+            .and(warp::get())
+            .and(warp::path("all"))
+            .and(with_db(db.clone()))
+            .and_then(projects::fetch_all_projects_handler))
+        .or(projects
             .and(warp::delete())
             .and(warp::path("dangerously-delete-all-projects"))
             .and(with_db(db.clone()))
@@ -122,7 +127,7 @@ async fn main() -> Result<()> {
         .with(cors)
         .recover(error::handle_rejection);
 
-    println!("Started on port 8080");
+    println!("Started on port 5000");
     warp::serve(routes).run(([0, 0, 0, 0], 8080)).await;
     Ok(())
 }
