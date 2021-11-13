@@ -1,4 +1,7 @@
-use crate::models::project::{ProjectRequest, ProjectResponse, ProjectSchema};
+use crate::models::project::{
+    ProjectAfterAggregation, ProjectRequest, ProjectResponse, ProjectSchema,
+    ProjectsGroupedByClient,
+};
 use crate::{error::Error::*, Result};
 use futures::StreamExt;
 use mongodb::bson::oid::ObjectId;
@@ -29,11 +32,47 @@ impl DB {
             color: color.to_owned(),
             estimate: estimate.to_owned(),
             status: status.to_owned(),
-            created_at: created_at.to_string(),
-            updated_at: updated_at.to_string(),
+            created_at: created_at.to_chrono().to_rfc3339(),
+            updated_at: updated_at.to_chrono().to_rfc3339(),
         };
 
         Ok(project)
+    }
+
+    fn doc_project_grouped_by_client(&self, doc: &Document) -> Result<ProjectsGroupedByClient> {
+        let id = doc.get_str("_id")?;
+        let projects = doc.get_array("projects")?;
+
+        let mut projects_vec: Vec<ProjectAfterAggregation> = vec![];
+
+        for item in projects {
+            let project_doc = item.as_document().unwrap();
+            let project_id = project_doc.get_object_id("_id")?;
+            let name = project_doc.get_str("name")?;
+            let color = project_doc.get_str("color")?;
+            let client_name = project_doc.get_str("clientName")?;
+            let estimate = project_doc.get_str("estimate")?;
+            let status = project_doc.get_str("status")?;
+
+            // Need Better Names
+            let proj = ProjectAfterAggregation {
+                _id: project_id.to_string(),
+                name: name.to_string(),
+                color: color.to_string(),
+                clientName: client_name.to_string(),
+                estimate: estimate.to_string(),
+                status: status.to_string(),
+            };
+
+            projects_vec.push(proj);
+        }
+
+        let results = ProjectsGroupedByClient {
+            _id: id.to_string(),
+            projects: projects_vec,
+        };
+
+        Ok(results)
     }
 
     pub async fn find_project(&self, id: &str) -> Result<ProjectResponse> {
@@ -57,9 +96,7 @@ impl DB {
         Ok(result)
     }
 
-    pub async fn get_projects_grouped_by_client(&self) -> Result<Vec<ProjectResponse>> {
-        println!("========== GOT HERE =========");
-
+    pub async fn get_projects_grouped_by_client(&self) -> Result<Vec<ProjectsGroupedByClient>> {
         let lookup_clients = doc! {
             "$lookup": {
                 "from": "clients",
@@ -101,9 +138,9 @@ impl DB {
             .aggregate(pipeline, None)
             .await?;
 
-        let mut results: Vec<ProjectResponse> = Vec::new();
+        let mut results: Vec<ProjectsGroupedByClient> = Vec::new();
         while let Some(doc) = cursor.next().await {
-            results.push(self.doc_to_project(&doc?)?)
+            results.push(self.doc_project_grouped_by_client(&doc?)?);
             // let doc: MovieSummary = bson::from_document(result?)?;
             // println!("* {}, comments={:?}", doc, doc.comments);
         }

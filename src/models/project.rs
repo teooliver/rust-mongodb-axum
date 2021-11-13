@@ -33,3 +33,19 @@ pub struct ProjectResponse {
     pub created_at: String,
     pub updated_at: String,
 }
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ProjectsGroupedByClient {
+    pub _id: String,
+    pub projects: Vec<ProjectAfterAggregation>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ProjectAfterAggregation {
+    pub _id: String,
+    pub name: String,
+    pub color: String,
+    pub clientName: String,
+    pub estimate: String,
+    pub status: String,
+}

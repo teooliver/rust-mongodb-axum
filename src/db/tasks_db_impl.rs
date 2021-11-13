@@ -59,10 +59,8 @@ impl DB {
 
         let mut result: Vec<TaskResponse> = Vec::new();
 
-        // println!("{:?}", cursor);
         while let Some(doc) = cursor.next().await {
             result.push(self.doc_to_task(&doc?)?);
-            println!("+++++ GOT HERE++++");
         }
 
         Ok(result)

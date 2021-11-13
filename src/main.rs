@@ -27,7 +27,7 @@ async fn main() -> Result<()> {
     let tasks = warp::path("tasks");
 
     let task_routes = tasks
-        .and(warp::path("all"))
+        .and(warp::path::end())
         .and(with_db(db.clone()))
         .and_then(tasks::fetch_all_tasks_handler)
         .or(tasks
@@ -71,7 +71,7 @@ async fn main() -> Result<()> {
             .and_then(projects::fetch_project_handler))
         .or(projects
             .and(warp::get())
-            .and(warp::path("all"))
+            .and(warp::path::end())
             .and(with_db(db.clone()))
             .and_then(projects::fetch_all_projects_handler))
         .or(projects
