@@ -3,6 +3,7 @@ use crate::error::Error::*;
 use crate::models::client::{ClientRequest, ClientResponse};
 
 use bson::Document;
+use futures::StreamExt;
 use mongodb::bson::oid::ObjectId;
 use mongodb::bson::{self, doc};
 use mongodb::Collection;
@@ -28,6 +29,22 @@ impl DB {
         };
 
         Ok(client)
+    }
+
+    pub async fn get_all_clients(&self) -> Result<Vec<ClientResponse>, error::Error> {
+        let mut cursor = self
+            .get_clients_collection()
+            .find(None, None)
+            .await
+            .map_err(MongoQueryError)?;
+
+        let mut result: Vec<ClientResponse> = Vec::new();
+
+        while let Some(doc) = cursor.next().await {
+            result.push(self.doc_to_client(&doc?)?);
+        }
+
+        Ok(result)
     }
 
     pub async fn find_client(&self, id: &str) -> Result<ClientResponse, error::Error> {

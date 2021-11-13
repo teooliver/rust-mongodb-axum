@@ -7,6 +7,14 @@ pub async fn fetch_all_tasks_handler(db: DB) -> WebResult<impl Reply> {
     Ok(json(&tasks))
 }
 
+pub async fn fetch_tasks_grouped_by_date(db: DB) -> WebResult<impl Reply> {
+    let tasks = db
+        .get_tasks_grouped_by_date()
+        .await
+        .map_err(|e| reject::custom(e))?;
+    Ok(json(&tasks))
+}
+
 pub async fn fetch_task_handler(id: String, db: DB) -> WebResult<impl Reply> {
     let tasks = db.find_task(&id).await.map_err(|e| reject::custom(e))?;
     Ok(json(&tasks))

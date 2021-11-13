@@ -1,4 +1,4 @@
-use crate::models::task::{TaskRequest, TaskResponse};
+use crate::models::task::{GroupedTasks, TaskAfterGrouped, TaskRequest, TaskResponse};
 use crate::{error::Error::*, Result};
 use chrono::prelude::*;
 use futures::StreamExt;
@@ -64,6 +64,79 @@ impl DB {
         }
 
         Ok(result)
+    }
+
+    pub async fn get_tasks_grouped_by_date(&self) -> Result<GroupedTasks> {
+        let lookup_projects = doc! {
+            "$lookup": {
+                "from": "projects",
+                "localField": "project",
+                "foreignField": "_id",
+                "as": "project",
+            }
+        };
+        let lookup_clients = doc! {
+            "$lookup": {
+              "from": "clients",
+              "localField": "project.client",
+              "foreignField": "_id",
+              "as": "client",
+            }
+        };
+
+        let project = doc! {
+              "$project": {
+                    "_id": "$_id",
+                    "name": "$name",
+                    "timeInSeconds": "$timeInSeconds",
+                    "initialTime": "$initialTime",
+                    "endTime": "$endTime",
+                    "project": "{ $arrayElemAt: ['$project.name', 0] }",
+                    "projectColor": "{ $arrayElemAt: ['$project.color', 0] }",
+                    "client": "{ $arrayElemAt: ['$client.name', 0] }",
+                },
+        };
+
+        let group = doc! {
+            "$group": {
+                "_id": { "$dateToString": { "format": "%Y-%m-%d", "date": "$initialTime" } },
+                "tasks": { "$push": "$$ROOT" },
+                "totalTime": {
+                    "$sum":{
+                        "$divide": [{ "$subtract": ["$endTime", "$initialTime"] }, 1000],
+                    },
+                },
+            },
+        };
+
+        let sort = doc! {
+             "$sort": {
+                "_id": -1,
+            },
+        };
+
+        let pipeline = vec![lookup_projects, lookup_clients, project, group, sort];
+
+        let mut cursor = self
+            .get_tasks_collection()
+            .aggregate(pipeline, None)
+            .await?;
+
+        let mut tasks_vec: Vec<TaskAfterGrouped>;
+        while let Some(doc) = cursor.next().await {
+            let doc_real = doc.unwrap();
+            let tasks = doc_real.get_array("tasks")?;
+
+            println!("{:?}", tasks);
+
+            // results.push(self.doc_project_grouped_by_client(&doc?)?);
+        }
+
+        // println!("{:?}", results);
+
+        // Ok(results)
+
+        todo!()
     }
 
     pub async fn find_task(&self, id: &str) -> Result<TaskResponse> {

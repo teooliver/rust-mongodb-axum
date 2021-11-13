@@ -5,7 +5,7 @@ mod error;
 mod models;
 
 use std::convert::Infallible;
-use warp::{Filter, Rejection};
+use warp::{hyper::Method, Filter, Rejection};
 
 type Result<T> = std::result::Result<T, error::Error>;
 type WebResult<T> = std::result::Result<T, Rejection>;
@@ -20,8 +20,17 @@ async fn main() -> Result<()> {
     let db = DB::init().await?;
 
     let cors = warp::cors().allow_any_origin();
-    // .allow_header("content-type")
-    // .allow_methods(&[Method::PUT, Method::DELETE]);
+    // .allow_methods(&[
+    //     Method::GET,
+    //     Method::POST,
+    //     Method::PATCH,
+    //     Method::PUT,
+    //     Method::DELETE,
+    // ])
+    // .allow_header("content-type");
+    // .allow_headers(["application/json", "content-type"]);
+    // .allow_credentials(true);
+    // .allow_methods(vec!["GET", "POST", "PUT", "DELETE"]);
 
     // TODO: add "api/v1" to all routes
     let tasks = warp::path("tasks");
@@ -35,6 +44,11 @@ async fn main() -> Result<()> {
             .and(warp::path::param())
             .and(with_db(db.clone()))
             .and_then(tasks::fetch_task_handler))
+        .or(tasks
+            .and(warp::get())
+            .and(warp::path("group"))
+            .and(with_db(db.clone()))
+            .and_then(tasks::fetch_tasks_grouped_by_date))
         .or(tasks
             .and(warp::post())
             .and(warp::body::json())
@@ -66,14 +80,14 @@ async fn main() -> Result<()> {
         .and_then(projects::create_project_handler)
         .or(projects
             .and(warp::get())
-            .and(warp::path::param())
-            .and(with_db(db.clone()))
-            .and_then(projects::fetch_project_handler))
-        .or(projects
-            .and(warp::get())
             .and(warp::path::end())
             .and(with_db(db.clone()))
             .and_then(projects::fetch_all_projects_handler))
+        .or(projects
+            .and(warp::get())
+            .and(warp::path::param())
+            .and(with_db(db.clone()))
+            .and_then(projects::fetch_project_handler))
         .or(projects
             .and(warp::delete())
             .and(warp::path("dangerously-delete-all-projects"))
@@ -87,15 +101,24 @@ async fn main() -> Result<()> {
 
     let clients = warp::path("clients");
     let client_routes = clients
-        .and(warp::get())
-        .and(warp::path::param())
+        .and(warp::path::end())
         .and(with_db(db.clone()))
-        .and_then(clients::fetch_client_handler)
+        .and_then(clients::fetch_all_clients_handler)
+        .or(clients
+            .and(warp::get())
+            .and(warp::path::param())
+            .and(with_db(db.clone()))
+            .and_then(clients::fetch_client_handler))
         .or(clients
             .and(warp::post())
             .and(warp::body::json())
             .and(with_db(db.clone()))
-            .and_then(clients::create_client_handler));
+            .and_then(clients::create_client_handler))
+        .or(clients
+            .and(warp::delete())
+            .and(warp::path::param())
+            .and(with_db(db.clone()))
+            .and_then(clients::delete_client_handler));
 
     let seed = warp::path("seed");
 
@@ -128,7 +151,7 @@ async fn main() -> Result<()> {
         .recover(error::handle_rejection);
 
     println!("Started on port 5000");
-    warp::serve(routes).run(([0, 0, 0, 0], 8080)).await;
+    warp::serve(routes).run(([0, 0, 0, 0], 5000)).await;
     Ok(())
 }
 

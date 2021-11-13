@@ -40,7 +40,18 @@ pub struct TaskResponse {
     pub updated_at: String,
 }
 
-// enum Project{
-//     ObjectId,
-//     String
-// }
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct GroupedTasks {
+    // _id: String,
+    tasks: Vec<TaskAfterGrouped>,
+    totalTime: i32,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct TaskAfterGrouped {
+    _id: String,
+    name: String,
+    project: String,
+    projectColor: String,
+    client: String,
+}

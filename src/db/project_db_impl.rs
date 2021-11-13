@@ -141,8 +141,6 @@ impl DB {
         let mut results: Vec<ProjectsGroupedByClient> = Vec::new();
         while let Some(doc) = cursor.next().await {
             results.push(self.doc_project_grouped_by_client(&doc?)?);
-            // let doc: MovieSummary = bson::from_document(result?)?;
-            // println!("* {}, comments={:?}", doc, doc.comments);
         }
 
         println!("{:?}", results);
