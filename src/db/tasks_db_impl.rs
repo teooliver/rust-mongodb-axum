@@ -1,4 +1,4 @@
-use crate::models::task::{GroupedTasks, TaskAfterGrouped, TaskRequest, TaskResponse};
+use crate::models::task::{TaskAfterGrouped, TaskRequest, TaskResponse, TasksGroupedByDate};
 use crate::{error::Error::*, Result};
 use chrono::prelude::*;
 use futures::StreamExt;
@@ -66,7 +66,7 @@ impl DB {
         Ok(result)
     }
 
-    pub async fn get_tasks_grouped_by_date(&self) -> Result<GroupedTasks> {
+    pub async fn get_tasks_grouped_by_date(&self) -> Result<Vec<TasksGroupedByDate>> {
         let lookup_projects = doc! {
             "$lookup": {
                 "from": "projects",
@@ -91,9 +91,9 @@ impl DB {
                     "timeInSeconds": "$timeInSeconds",
                     "initialTime": "$initialTime",
                     "endTime": "$endTime",
-                    "project": "{ $arrayElemAt: ['$project.name', 0] }",
-                    "projectColor": "{ $arrayElemAt: ['$project.color', 0] }",
-                    "client": "{ $arrayElemAt: ['$client.name', 0] }",
+                    "project": { "$arrayElemAt": ["$project.name", 0] },
+                    "projectColor": { "$arrayElemAt": ["$project.color", 0] },
+                    "client": { "$arrayElemAt": ["$client.name", 0] },
                 },
         };
 
@@ -139,13 +139,17 @@ impl DB {
                     project: task_document.get_str("project")?.to_string(),
                     projectColor: task_document.get_str("projectColor")?.to_string(),
                     client: task_document.get_str("client")?.to_string(),
+                    time_in_seconds: todo!(),
+                    initial_time: todo!(),
+                    end_time: todo!(),
                 };
                 println!("{:?}", task);
                 tasks_vec.push(task);
             }
         }
 
-        let grouped_tasks = GroupedTasks {
+        let grouped_tasks = TasksGroupedByDate {
+            _id: todo!(),
             tasks: tasks_vec,
             totalTime: total_time,
         };

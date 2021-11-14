@@ -41,8 +41,8 @@ pub struct TaskResponse {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct GroupedTasks {
-    // _id: String,
+pub struct TasksGroupedByDate {
+    _id: String,
     pub tasks: Vec<TaskAfterGrouped>,
     pub totalTime: i32,
 }
@@ -51,6 +51,9 @@ pub struct GroupedTasks {
 pub struct TaskAfterGrouped {
     pub _id: String,
     pub name: String,
+    pub time_in_seconds: i32,
+    pub initial_time: String,
+    pub end_time: String,
     pub project: String,
     pub projectColor: String,
     pub client: String,
