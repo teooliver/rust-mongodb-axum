@@ -122,21 +122,39 @@ impl DB {
             .aggregate(pipeline, None)
             .await?;
 
-        let mut tasks_vec: Vec<TaskAfterGrouped>;
+        let mut tasks_vec: Vec<TaskAfterGrouped> = vec![];
+        let mut total_time: i32 = 0;
         while let Some(doc) = cursor.next().await {
             let doc_real = doc.unwrap();
             let tasks = doc_real.get_array("tasks")?;
+            total_time = doc_real.get_i32("totalTime")?;
 
-            println!("{:?}", tasks);
+            for item in tasks {
+                // task_id = item.get_object_id("_id")?;
+                let task_document = item.as_document().unwrap();
 
-            // results.push(self.doc_project_grouped_by_client(&doc?)?);
+                let task = TaskAfterGrouped {
+                    _id: task_document.get_object_id("_id")?.to_hex(),
+                    name: task_document.get_str("name")?.to_string(),
+                    project: task_document.get_str("project")?.to_string(),
+                    projectColor: task_document.get_str("projectColor")?.to_string(),
+                    client: task_document.get_str("client")?.to_string(),
+                };
+                println!("{:?}", task);
+                tasks_vec.push(task);
+            }
         }
+
+        let grouped_tasks = GroupedTasks {
+            tasks: tasks_vec,
+            totalTime: total_time,
+        };
 
         // println!("{:?}", results);
 
-        // Ok(results)
+        Ok(grouped_tasks)
 
-        todo!()
+        // todo!()
     }
 
     pub async fn find_task(&self, id: &str) -> Result<TaskResponse> {
