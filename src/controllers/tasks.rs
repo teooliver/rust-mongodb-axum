@@ -21,6 +21,7 @@ pub async fn fetch_task_handler(id: String, db: DB) -> WebResult<impl Reply> {
 }
 
 pub async fn create_task_handler(body: TaskRequest, db: DB) -> WebResult<impl Reply> {
+    println!("HANDLER {:?}", body);
     db.create_task(&body).await.map_err(|e| reject::custom(e))?;
     // TODO: Return the created object
     Ok(StatusCode::CREATED)

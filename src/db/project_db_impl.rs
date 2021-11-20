@@ -1,6 +1,5 @@
 use crate::models::project::{
-    ProjectAfterAggregation, ProjectRequest, ProjectResponse, ProjectSchema,
-    ProjectsGroupedByClient,
+    ProjectAfterAggregation, ProjectRequest, ProjectResponse, ProjectsGroupedByClient,
 };
 use crate::{error::Error::*, Result};
 use futures::StreamExt;
@@ -50,7 +49,7 @@ impl DB {
             let project_id = project_doc.get_object_id("_id")?;
             let name = project_doc.get_str("name")?;
             let color = project_doc.get_str("color")?;
-            let client_name = project_doc.get_str("clientName")?;
+            let client_name = project_doc.get_str("client_name")?;
             let estimate = project_doc.get_str("estimate")?;
             let status = project_doc.get_str("status")?;
 
@@ -59,7 +58,7 @@ impl DB {
                 _id: project_id.to_string(),
                 name: name.to_string(),
                 color: color.to_string(),
-                clientName: client_name.to_string(),
+                client_name: client_name.to_string(),
                 estimate: estimate.to_string(),
                 status: status.to_string(),
             };
@@ -102,7 +101,7 @@ impl DB {
                 "from": "clients",
                 "localField": "client",
                 "foreignField": "_id",
-                "as": "clientName",
+                "as": "client_name",
             }
         };
 
@@ -117,7 +116,7 @@ impl DB {
                 "_id": "$_id",
                 "name": "$name",
                 "color": "$color",
-                "clientName": { "$arrayElemAt": ["$clientName.name", 0] },
+                "client_name": { "$arrayElemAt": ["$client_name.name", 0] },
                 "estimate": "$estimate",
                 "status": "$status",
                 "subprojects": "$subprojects",
@@ -126,7 +125,7 @@ impl DB {
 
         let group = doc! {
             "$group": {
-                "_id": "$clientName",
+                "_id": "$client_name",
                 "projects": { "$push": "$$ROOT" },
              },
         };
@@ -142,8 +141,6 @@ impl DB {
         while let Some(doc) = cursor.next().await {
             results.push(self.doc_project_grouped_by_client(&doc?)?);
         }
-
-        println!("{:?}", results);
 
         Ok(results)
     }

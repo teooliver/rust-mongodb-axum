@@ -5,14 +5,14 @@ use serde::{self, Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct TaskSchema {
-    pub _id: String, //ObjectId
+    pub _id: ObjectId,
     pub name: String,
+    pub project: Option<ObjectId>,
     pub time_in_seconds: i32,
     #[serde(with = "bson_datetime_as_rfc3339_string")]
     pub initial_time: DateTime,
     #[serde(with = "bson_datetime_as_rfc3339_string")]
     pub end_time: DateTime,
-    pub project: Option<ObjectId>,
     #[serde(with = "bson_datetime_as_rfc3339_string")]
     pub created_at: DateTime,
     #[serde(with = "bson_datetime_as_rfc3339_string")]
@@ -42,9 +42,9 @@ pub struct TaskResponse {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct TasksGroupedByDate {
-    _id: String,
+    pub _id: String,
     pub tasks: Vec<TaskAfterGrouped>,
-    pub totalTime: i32,
+    pub total_time: i32,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -54,7 +54,7 @@ pub struct TaskAfterGrouped {
     pub time_in_seconds: i32,
     pub initial_time: String,
     pub end_time: String,
-    pub project: String,
-    pub projectColor: String,
-    pub client: String,
+    pub project: Option<String>,
+    pub project_color: Option<String>,
+    pub client: Option<String>,
 }

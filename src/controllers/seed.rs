@@ -3,6 +3,7 @@ use crate::error::Error::InvalidIDError;
 
 use crate::models::task::TaskRequest;
 use crate::{models::project::ProjectRequest, WebResult};
+use chrono::SecondsFormat;
 use fake::{self, Fake};
 use mongodb::bson::Document;
 use mongodb::bson::{doc, oid::ObjectId};
@@ -81,7 +82,7 @@ pub fn generate_projects_data(
     projects
 }
 
-pub fn create_task(project_ids: Vec<String>) -> Document {
+fn create_task(project_ids: Vec<String>) -> Document {
     let rng_project_index = rand::thread_rng().gen_range(0..(project_ids.len() - 1));
 
     let project_id = ObjectId::parse_str(project_ids[rng_project_index].to_string())
@@ -91,11 +92,11 @@ pub fn create_task(project_ids: Vec<String>) -> Document {
     let new_task = doc! {
         "name": fake::faker::company::en::CompanyName().fake::<String>().to_string(),
         "time_in_seconds": 1000,
-        "initial_time": chrono::Utc::now().clone(),
-        "end_time": chrono::Utc::now().clone(),
+        "initial_time": chrono::Utc::now(),
+        "end_time": chrono::Utc::now(),
         "project": Some(project_id),
-        "created_at": chrono::Utc::now().clone(),
-        "updated_at": chrono::Utc::now().clone(),
+        "created_at": chrono::Utc::now(),
+        "updated_at": chrono::Utc::now(),
     };
 
     new_task
@@ -141,6 +142,14 @@ pub async fn seed_tasks(db: DB) -> WebResult<impl Reply> {
 
     db.create_many_tasks(generate_tasks_data(10, projects_ids))
         .await?;
+
+    Ok(StatusCode::OK)
+}
+
+pub async fn seed_all_data(db: DB) -> WebResult<impl Reply> {
+    seed_clients(db.clone()).await?;
+    seed_projects(db.clone()).await?;
+    seed_tasks(db.clone()).await?;
 
     Ok(StatusCode::OK)
 }

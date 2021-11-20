@@ -45,7 +45,7 @@ pub struct ProjectAfterAggregation {
     pub _id: String,
     pub name: String,
     pub color: String,
-    pub clientName: String,
+    pub client_name: String,
     pub estimate: String,
     pub status: String,
 }

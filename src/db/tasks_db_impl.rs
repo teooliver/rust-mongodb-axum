@@ -1,5 +1,6 @@
 use crate::models::task::{TaskAfterGrouped, TaskRequest, TaskResponse, TasksGroupedByDate};
 use crate::{error::Error::*, Result};
+use chrono::format::Fixed;
 use chrono::prelude::*;
 use futures::StreamExt;
 use mongodb::bson;
@@ -14,7 +15,6 @@ impl DB {
     }
 
     fn doc_to_task(&self, doc: &Document) -> Result<TaskResponse> {
-        // println!("{:?}", doc);
         let id = doc.get_object_id("_id")?;
         let name = doc.get_str("name")?;
         let time_in_seconds = doc.get_i32("time_in_seconds")?;
@@ -23,11 +23,6 @@ impl DB {
         let project = doc.get_object_id("project")?;
         let created_at = doc.get_datetime("created_at")?;
         let updated_at = doc.get_datetime("updated_at")?;
-
-        // let match_project: Option<ObjectId> = match project {
-        //     project => Some(project),
-        //     None => None,
-        // };
 
         // if project.is_none() {
         //     // return error::Err(warp::reject::not_found());
@@ -39,12 +34,20 @@ impl DB {
             name: name.to_owned(),
             time_in_seconds: time_in_seconds.to_owned(),
             // initial_time: initial_time.to_string(),
-            initial_time: initial_time.to_chrono().to_rfc3339(),
+            initial_time: initial_time
+                .to_chrono()
+                .to_rfc3339_opts(SecondsFormat::Secs, true),
             // end_time: end_time.to_string(),
-            end_time: end_time.to_chrono().to_rfc3339(),
+            end_time: end_time
+                .to_chrono()
+                .to_rfc3339_opts(SecondsFormat::Secs, true),
             project: Some(project.to_hex()),
-            created_at: created_at.to_chrono().to_rfc3339(),
-            updated_at: updated_at.to_chrono().to_rfc3339(),
+            created_at: created_at
+                .to_chrono()
+                .to_rfc3339_opts(SecondsFormat::Secs, true),
+            updated_at: updated_at
+                .to_chrono()
+                .to_rfc3339_opts(SecondsFormat::Secs, true),
         };
 
         Ok(task)
@@ -88,22 +91,22 @@ impl DB {
               "$project": {
                     "_id": "$_id",
                     "name": "$name",
-                    "timeInSeconds": "$timeInSeconds",
-                    "initialTime": "$initialTime",
-                    "endTime": "$endTime",
+                    "time_in_seconds": "$time_in_seconds",
+                    "initial_time": "$initial_time",
+                    "end_time": "$end_time",
                     "project": { "$arrayElemAt": ["$project.name", 0] },
-                    "projectColor": { "$arrayElemAt": ["$project.color", 0] },
+                    "project_color": { "$arrayElemAt": ["$project.color", 0] },
                     "client": { "$arrayElemAt": ["$client.name", 0] },
                 },
         };
 
         let group = doc! {
             "$group": {
-                "_id": { "$dateToString": { "format": "%Y-%m-%d", "date": "$initialTime" } },
+                "_id": { "$dateToString": { "format": "%Y-%m-%d", "date": "$initial_time" } },
                 "tasks": { "$push": "$$ROOT" },
                 "totalTime": {
                     "$sum":{
-                        "$divide": [{ "$subtract": ["$endTime", "$initialTime"] }, 1000],
+                        "$divide": [{ "$subtract": ["$end_time", "$initial_time"] }, 1000],
                     },
                 },
             },
@@ -122,43 +125,65 @@ impl DB {
             .aggregate(pipeline, None)
             .await?;
 
+        let mut grouped_tasks_vec: Vec<TasksGroupedByDate> = vec![];
         let mut tasks_vec: Vec<TaskAfterGrouped> = vec![];
-        let mut total_time: i32 = 0;
+
         while let Some(doc) = cursor.next().await {
             let doc_real = doc.unwrap();
+            let id = doc_real.get_str("_id")?;
             let tasks = doc_real.get_array("tasks")?;
-            total_time = doc_real.get_i32("totalTime")?;
+            let total_time = doc_real.get_i32("totalTime").unwrap_or(0);
 
             for item in tasks {
-                // task_id = item.get_object_id("_id")?;
                 let task_document = item.as_document().unwrap();
 
+                let _id = task_document.get_object_id("_id")?.to_hex();
+                let name = task_document.get_str("name")?.to_string();
+                let time_in_seconds = 10043;
+                let initial_time = task_document
+                    .get_datetime("initial_time")?
+                    .to_chrono()
+                    .to_rfc3339_opts(SecondsFormat::Secs, true);
+                let end_time = task_document
+                    .get_datetime("end_time")?
+                    .to_chrono()
+                    .to_rfc3339_opts(SecondsFormat::Secs, true);
+                let project = task_document.get_str("project").ok();
+
+                let project_color = task_document.get_str("project_color").ok();
+
+                let client = task_document.get_str("client").ok();
+
+                fn project_name(proj: Option<&str>) -> Option<String> {
+                    match proj {
+                        Some(proj) => Some(proj.to_string()),
+                        None => None,
+                    }
+                }
+
                 let task = TaskAfterGrouped {
-                    _id: task_document.get_object_id("_id")?.to_hex(),
-                    name: task_document.get_str("name")?.to_string(),
-                    project: task_document.get_str("project")?.to_string(),
-                    projectColor: task_document.get_str("projectColor")?.to_string(),
-                    client: task_document.get_str("client")?.to_string(),
-                    time_in_seconds: todo!(),
-                    initial_time: todo!(),
-                    end_time: todo!(),
+                    _id,
+                    name,
+                    time_in_seconds,
+                    initial_time,
+                    end_time,
+                    project: project_name(project),
+                    project_color: project_name(project_color),
+                    client: project_name(client),
                 };
-                println!("{:?}", task);
+
                 tasks_vec.push(task);
             }
+            let grouped_tasks = TasksGroupedByDate {
+                _id: id.to_string(),
+                tasks: tasks_vec.to_owned(),
+                total_time: total_time,
+            };
+
+            grouped_tasks_vec.push(grouped_tasks);
         }
 
-        let grouped_tasks = TasksGroupedByDate {
-            _id: todo!(),
-            tasks: tasks_vec,
-            totalTime: total_time,
-        };
-
-        // println!("{:?}", results);
-
-        Ok(grouped_tasks)
-
-        // todo!()
+        Ok(grouped_tasks_vec.to_vec())
     }
 
     pub async fn find_task(&self, id: &str) -> Result<TaskResponse> {
@@ -172,8 +197,6 @@ impl DB {
             .await
             .map_err(MongoQueryError)?;
 
-        // println!("{:?}", document);
-
         if document.is_none() {
             // return error::Err(warp::reject::not_found());
             return Err(ObjNotFound);
@@ -185,10 +208,12 @@ impl DB {
     }
 
     pub async fn create_task(&self, _entry: &TaskRequest) -> Result<()> {
-        let chrono_dt: chrono::DateTime<Utc> = _entry.initial_time.parse().unwrap();
-        let initial_time: bson::DateTime = chrono_dt.into();
-        let chrono_endtime: chrono::DateTime<Utc> = _entry.end_time.parse().unwrap();
-        let end_time: bson::DateTime = chrono_endtime.into();
+        let initial_time: chrono::DateTime<Utc> = _entry.initial_time.parse().unwrap();
+        // let initial_time: bson::DateTime = chrono_dt.into();
+
+        let end_time: chrono::DateTime<Utc> = _entry.end_time.parse().unwrap();
+        // let end_time: bson::DateTime = chrono_endtime.into();
+
         let project: Option<ObjectId> = _entry.project.clone();
 
         self.get_tasks_collection()
@@ -196,9 +221,9 @@ impl DB {
                 doc! {
                 "name": _entry.name.clone(),
                 "time_in_seconds": _entry.time_in_seconds.clone(),
-                "initial_time": initial_time.clone(),
-                "end_time": end_time.clone(),
-                "project": project,
+                "initial_time": initial_time,
+                "end_time": end_time,
+                "project": Some(project),
                 "created_at": chrono::Utc::now().clone(),
                 "updated_at": chrono::Utc::now().clone(),
                 },

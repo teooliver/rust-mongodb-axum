@@ -19,14 +19,25 @@ use crate::{
 async fn main() -> Result<()> {
     let db = DB::init().await?;
 
-    let cors = warp::cors().allow_any_origin();
-    // .allow_methods(&[
-    //     Method::GET,
-    //     Method::POST,
-    //     Method::PATCH,
-    //     Method::PUT,
-    //     Method::DELETE,
-    // ])
+    let cors = warp::cors()
+        .allow_any_origin()
+        .allow_headers(vec![
+            // "User-Agent",
+            // "Sec-Fetch-Mode",
+            // "Referer",
+            // "Origin",
+            // "Access-Control-Request-Method",
+            // "Access-Control-Request-Headers",
+            "content-type",
+        ])
+        // .allow_methods(vec!["POST", "GET"]);
+        .allow_methods(&[
+            Method::GET,
+            Method::POST,
+            Method::PATCH,
+            Method::PUT,
+            Method::DELETE,
+        ]);
     // .allow_header("content-type");
     // .allow_headers(["application/json", "content-type"]);
     // .allow_credentials(true);
@@ -36,9 +47,15 @@ async fn main() -> Result<()> {
     let tasks = warp::path("tasks");
 
     let task_routes = tasks
-        .and(warp::path::end())
+        .and(warp::post())
+        .and(warp::body::json())
         .and(with_db(db.clone()))
-        .and_then(tasks::fetch_all_tasks_handler)
+        .and_then(tasks::create_task_handler)
+        .or(tasks
+            .and(warp::get())
+            .and(warp::path::end())
+            .and(with_db(db.clone()))
+            .and_then(tasks::fetch_all_tasks_handler))
         .or(tasks
             .and(warp::get())
             .and(warp::path::param())
@@ -49,11 +66,6 @@ async fn main() -> Result<()> {
             .and(warp::path("group"))
             .and(with_db(db.clone()))
             .and_then(tasks::fetch_tasks_grouped_by_date))
-        .or(tasks
-            .and(warp::post())
-            .and(warp::body::json())
-            .and(with_db(db.clone()))
-            .and_then(tasks::create_task_handler))
         .or(tasks
             .and(warp::put())
             .and(warp::path::param())
@@ -137,6 +149,11 @@ async fn main() -> Result<()> {
             .and(warp::path("tasks"))
             .and(with_db(db.clone()))
             .and_then(seed::seed_tasks))
+        .or(seed
+            .and(warp::get())
+            .and(warp::path("all"))
+            .and(with_db(db.clone()))
+            .and_then(seed::seed_all_data))
         .or(seed
             .and(warp::get())
             .and(warp::path("remove"))
