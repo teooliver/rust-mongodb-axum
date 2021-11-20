@@ -91,7 +91,6 @@ fn create_task(project_ids: Vec<String>) -> Document {
 
     let new_task = doc! {
         "name": fake::faker::company::en::CompanyName().fake::<String>().to_string(),
-        "time_in_seconds": 1000,
         "initial_time": chrono::Utc::now(),
         "end_time": chrono::Utc::now(),
         "project": Some(project_id),

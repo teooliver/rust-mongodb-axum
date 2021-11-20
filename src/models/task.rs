@@ -8,7 +8,6 @@ pub struct TaskSchema {
     pub _id: ObjectId,
     pub name: String,
     pub project: Option<ObjectId>,
-    pub time_in_seconds: i32,
     #[serde(with = "bson_datetime_as_rfc3339_string")]
     pub initial_time: DateTime,
     #[serde(with = "bson_datetime_as_rfc3339_string")]
@@ -22,7 +21,6 @@ pub struct TaskSchema {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct TaskRequest {
     pub name: String,
-    pub time_in_seconds: i32,
     pub initial_time: String,
     pub end_time: String,
     pub project: Option<ObjectId>,
@@ -32,7 +30,6 @@ pub struct TaskRequest {
 pub struct TaskResponse {
     pub _id: String,
     pub name: String,
-    pub time_in_seconds: i32,
     pub initial_time: String,
     pub end_time: String,
     pub project: Option<String>, //hex
@@ -51,7 +48,6 @@ pub struct TasksGroupedByDate {
 pub struct TaskAfterGrouped {
     pub _id: String,
     pub name: String,
-    pub time_in_seconds: i32,
     pub initial_time: String,
     pub end_time: String,
     pub project: Option<String>,

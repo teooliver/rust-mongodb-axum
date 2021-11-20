@@ -17,7 +17,6 @@ impl DB {
     fn doc_to_task(&self, doc: &Document) -> Result<TaskResponse> {
         let id = doc.get_object_id("_id")?;
         let name = doc.get_str("name")?;
-        let time_in_seconds = doc.get_i32("time_in_seconds")?;
         let initial_time = doc.get_datetime("initial_time")?;
         let end_time = doc.get_datetime("end_time")?;
         let project = doc.get_object_id("project")?;
@@ -32,7 +31,6 @@ impl DB {
         let task = TaskResponse {
             _id: id.to_hex(),
             name: name.to_owned(),
-            time_in_seconds: time_in_seconds.to_owned(),
             // initial_time: initial_time.to_string(),
             initial_time: initial_time
                 .to_chrono()
@@ -91,7 +89,6 @@ impl DB {
               "$project": {
                     "_id": "$_id",
                     "name": "$name",
-                    "time_in_seconds": "$time_in_seconds",
                     "initial_time": "$initial_time",
                     "end_time": "$end_time",
                     "project": { "$arrayElemAt": ["$project.name", 0] },
@@ -139,7 +136,6 @@ impl DB {
 
                 let _id = task_document.get_object_id("_id")?.to_hex();
                 let name = task_document.get_str("name")?.to_string();
-                let time_in_seconds = 10043;
                 let initial_time = task_document
                     .get_datetime("initial_time")?
                     .to_chrono()
@@ -164,7 +160,6 @@ impl DB {
                 let task = TaskAfterGrouped {
                     _id,
                     name,
-                    time_in_seconds,
                     initial_time,
                     end_time,
                     project: project_name(project),
@@ -220,7 +215,6 @@ impl DB {
             .insert_one(
                 doc! {
                 "name": _entry.name.clone(),
-                "time_in_seconds": _entry.time_in_seconds.clone(),
                 "initial_time": initial_time,
                 "end_time": end_time,
                 "project": Some(project),
@@ -251,7 +245,6 @@ impl DB {
         let doc = doc! {
             "$set": {
                 "name": _entry.name.clone(),
-                "time_in_seconds": _entry.time_in_seconds.clone(),
                 "initial_time": initial_time.clone(),
                 "end_time": end_time.clone(),
                 "project": project,
