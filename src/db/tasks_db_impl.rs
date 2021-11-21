@@ -3,8 +3,9 @@ use crate::{error::Error::*, Result};
 use chrono::format::Fixed;
 use chrono::prelude::*;
 use futures::StreamExt;
-use mongodb::bson;
+use mongodb::bson::{self, Bson};
 use mongodb::bson::{doc, document::Document, oid::ObjectId};
+use mongodb::results::InsertOneResult;
 use mongodb::Collection;
 
 use super::{DB, DB_NAME};
@@ -202,7 +203,7 @@ impl DB {
         Ok(result)
     }
 
-    pub async fn create_task(&self, _entry: &TaskRequest) -> Result<()> {
+    pub async fn create_task(&self, _entry: &TaskRequest) -> Result<Bson> {
         let initial_time: chrono::DateTime<Utc> = _entry.initial_time.parse().unwrap();
         // let initial_time: bson::DateTime = chrono_dt.into();
 
@@ -211,7 +212,8 @@ impl DB {
 
         let project: Option<ObjectId> = _entry.project.clone();
 
-        self.get_tasks_collection()
+        let new_task = self
+            .get_tasks_collection()
             .insert_one(
                 doc! {
                 "name": _entry.name.clone(),
@@ -226,7 +228,7 @@ impl DB {
             .await
             .map_err(MongoQueryError)?;
 
-        Ok(())
+        Ok(new_task.inserted_id)
     }
 
     pub async fn edit_task(&self, id: &str, _entry: &TaskRequest) -> Result<()> {
