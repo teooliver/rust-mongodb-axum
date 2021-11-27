@@ -1,11 +1,9 @@
 use crate::models::task::{TaskAfterGrouped, TaskRequest, TaskResponse, TasksGroupedByDate};
 use crate::{error::Error::*, Result};
-use chrono::format::Fixed;
 use chrono::prelude::*;
 use futures::StreamExt;
 use mongodb::bson::{self, Bson};
 use mongodb::bson::{doc, document::Document, oid::ObjectId};
-use mongodb::results::InsertOneResult;
 use mongodb::Collection;
 
 use super::{DB, DB_NAME};
